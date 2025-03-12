@@ -1,0 +1,7 @@
+{
+  "app": "npx ts-node --prefer-ts-exts drizzle-migrate-postgres.integ.ts",
+  "context": {
+    "@aws-cdk/core:enableDiffNoFail": "true",
+    "@aws-cdk/core:newStyleStackSynthesis": "true"
+  }
+}
