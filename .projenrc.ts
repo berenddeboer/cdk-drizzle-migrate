@@ -32,7 +32,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     prettier: true,
   },
   projenrcTs: true,
-  repositoryUrl: "https://github.com/berend/cdk-drizzle-migrate.git",
+  repositoryUrl: "https://github.com/berenddeboer/cdk-drizzle-migrate.git",
   description: "AWS CDK construct for running Drizzle ORM migrations",
 
   deps: [],
