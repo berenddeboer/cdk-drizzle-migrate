@@ -144,6 +144,6 @@ export class DrizzleMigrate extends Construct {
     })
 
     const resourceCfn = this.resource.node.defaultChild as CfnResource
-    resourceCfn.addPropertyOverride("ServiceTimeout", 300)
+    resourceCfn.addPropertyOverride("ServiceTimeout", 900)
   }
 }
