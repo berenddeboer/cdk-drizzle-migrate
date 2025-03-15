@@ -12,7 +12,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
   gitignore: [".envrc", "integ/cdk.out/"],
-  npmignore: ["!/integ"],
   prettier: true,
   prettierOptions: {
     yaml: true,
@@ -63,5 +62,11 @@ project.addTask("integ:generate-migrations", {
   description: "Generate Drizzle migrations for the integration test",
   exec: "cd integ && npx drizzle-kit generate",
 })
+
+project.addPackageIgnore(".envrc")
+project.addPackageIgnore("*~")
+project.addPackageIgnore("integ/cdk.out")
+project.addPackageIgnore(".aider.*")
+project.addPackageIgnore("CONVENTIONS.md")
 
 project.synth()
