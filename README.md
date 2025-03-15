@@ -11,13 +11,62 @@ environments, and works in isolated subnets.
   <a href="https://github.com/berenddeboer/cdk-rds-sql/actions/workflows/release.yml"><img src="https://github.com/berenddeboer/cdk-rds-sql/actions/workflows/release.yml/badge.svg" alt="Release badge"></a>
 </p>
 
-# Requirements
-
-- CDK v2.
-
 # Installation
 
      npm i cdk-drizzle-migrate
+
+# Usage
+
+Have an RDS database and a secret that stores your db credentials.
+
+```ts
+import { DrizzleMigrate } from "@berenddeboer/cdk-drizzle-migrate"
+
+// Create the DrizzleMigrate construct
+const migrator = new DrizzleMigrate(this, "DrizzleMigration", {
+  dbSecret: secret,
+  migrationsPath: "migrations",
+  vpc: vpc,
+  vpcSubnets: {
+	subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+  },
+  cluster: database, // Pass the database instance to allow automatic security group configuration
+})
+```
+
+It assumes your migrations are stored in the `migrations` folder.
+
+Passing your database cluster is optional. If supplied, the lambda's
+security group will be added as allowed source to the database security group.
+
+If you do not pass one, make sure to pass in a security group in
+`handlerProps.securityGroups` which can connect to your database.
+
+Your secret should look like the standard one created by CDK:
+
+```json
+{
+  "password": "some-password",
+  "dbname": "testdb",
+  "engine": "postgres",
+  "port": 5432,
+  "dbInstanceIdentifier": "some-name",
+  "host": "some-name.cvabql2flhit.ap-southeast-2.rds.amazonaws.com",
+  "username": "postgres"
+}
+```
+
+When this resource is deployed, it will run `drizzle-kit migrate` for
+you in the lambda.
+
+The default timeout is 5 minutes, you need to increase this if your
+migration takes more time.
+
+
+# Potential pitfalls
+
+1. The lambda can only run for 15 minutes. If your migrations take
+   longer, this solution will not work.
 
 # Working on this code
 
