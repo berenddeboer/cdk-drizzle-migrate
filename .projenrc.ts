@@ -83,13 +83,13 @@ project.addTask("clean:package:js", {
 })
 
 // Append a custom cleaning step to the release_npm job in the release workflow
-const releaseWorkflow = project.github?.tryFindWorkflow("release")
-if (releaseWorkflow) {
-  const releaseNpmJob = releaseWorkflow.jobs["release_npm"]
+const releaseWorkflowAny = project.github?.tryFindWorkflow("release") as any
+if (releaseWorkflowAny) {
+  const releaseNpmJob = releaseWorkflowAny.jobs["release_npm"]
   if (releaseNpmJob) {
     const cleanStep = { name: "Clean js artifact", run: "npx projen clean:package:js" }
     // Insert cleanStep immediately before the "Release" step.
-    const releaseStepIndex = releaseNpmJob.steps.findIndex(step => step.name === "Release")
+    const releaseStepIndex = releaseNpmJob.steps.findIndex((step: { name?: string }) => step.name === "Release")
     if (releaseStepIndex >= 0) {
       releaseNpmJob.steps.splice(releaseStepIndex, 0, cleanStep)
     } else {
