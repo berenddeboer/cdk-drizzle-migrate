@@ -11,3 +11,4 @@
 - src/drizzle-migrate-provider.ts: the custom resource provider.
 - src/lambda/index.ts: the actual code for the custom resource handler.
 - .projen/: directory with generated files. Do not change them. They are managed via `.projenrc.ts`.
+- .github/: directory with generated files. Do not change them. They are managed via `.projenrc.ts`.

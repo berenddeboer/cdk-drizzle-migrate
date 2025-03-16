@@ -71,4 +71,31 @@ project.addPackageIgnore("integ/cdk.out")
 project.addPackageIgnore(".aider.*")
 project.addPackageIgnore("CONVENTIONS.md")
 
+project.addTask("clean:package:js", {
+  description: "Remove esbuild symlinks from the JSII tarball",
+  exec: `for f in dist/js/*.tgz; do
+    mkdir -p tmp && tar -xzf "$f" -C tmp &&
+    rm tmp/package/node_modules/drizzle-kit/node_modules/@esbuild/linux-x64/bin/esbuild
+    rm tmp/package/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/linux-x64/bin/esbuild
+    tar -czf "$f" -C tmp package &&
+    rm -rf tmp;
+  done`,
+})
+
+// Append a custom cleaning step to the release_npm job in the release workflow
+const releaseWorkflow = project.github?.tryFindWorkflow("release")
+if (releaseWorkflow) {
+  const releaseNpmJob = releaseWorkflow.jobs["release_npm"]
+  if (releaseNpmJob) {
+    const cleanStep = { name: "Clean js artifact", run: "npx projen clean:package:js" }
+    // Insert cleanStep immediately before the "Release" step.
+    const releaseStepIndex = releaseNpmJob.steps.findIndex(step => step.name === "Release")
+    if (releaseStepIndex >= 0) {
+      releaseNpmJob.steps.splice(releaseStepIndex, 0, cleanStep)
+    } else {
+      releaseNpmJob.addStep(cleanStep)
+    }
+  }
+}
+
 project.synth()

@@ -42,6 +42,15 @@
       ],
       "condition": "git log --oneline -1 | grep -qv \"chore(release):\""
     },
+    "clean:package:js": {
+      "name": "clean:package:js",
+      "description": "Remove esbuild symlinks from the JSII tarball",
+      "steps": [
+        {
+          "exec": "for f in dist/js/*.tgz; do\n    mkdir -p tmp && tar -xzf \"$f\" -C tmp &&\n    rm tmp/package/node_modules/drizzle-kit/node_modules/@esbuild/linux-x64/bin/esbuild\n    rm tmp/package/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/linux-x64/bin/esbuild\n    tar -czf \"$f\" -C tmp package &&\n    rm -rf tmp;\n  done"
+        }
+      ]
+    },
     "clobber": {
       "name": "clobber",
       "description": "hard resets to HEAD of origin and cleans the local repo",
