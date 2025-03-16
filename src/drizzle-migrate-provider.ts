@@ -82,11 +82,11 @@ export class DrizzleMigrate extends Construct {
       vpcSubnets: props.vpcSubnets,
       ...props.handlerProps,
       environment: {
-        NODE_OPTIONS: "--enable-source-maps",
         NO_COLOR: "1",
         ...(props.handlerProps?.environment || {}),
       },
       bundling: {
+        sourceMap: true,
         // Include the migrations directory in the bundle
         commandHooks: {
           beforeBundling(_: string, outputDir: string): string[] {
@@ -103,7 +103,6 @@ export class DrizzleMigrate extends Construct {
             return []
           },
         },
-        nodeModules: ["drizzle-kit", "drizzle-orm"],
         ...props.handlerProps?.bundling,
       },
     })

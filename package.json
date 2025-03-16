@@ -47,6 +47,7 @@
     "aws-cdk-lib": "2.171.1",
     "commit-and-tag-version": "^12",
     "constructs": "10.3.0",
+    "esbuild": "^0.25.1",
     "eslint": "^8",
     "eslint-config-prettier": "^10.1.1",
     "eslint-import-resolver-typescript": "^3.8.5",
@@ -85,6 +86,7 @@
     "aws",
     "aws-cdk",
     "cdk",
+    "drizzle",
     "rds"
   ],
   "main": "lib/index.js",

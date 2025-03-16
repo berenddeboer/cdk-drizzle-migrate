@@ -315,7 +315,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii pg prettier projen ts-jest ts-node typescript @aws-sdk/client-secrets-manager drizzle-kit drizzle-orm aws-cdk-lib constructs"
+          "exec": "npm update @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii pg prettier projen ts-jest ts-node typescript @aws-sdk/client-secrets-manager drizzle-kit drizzle-orm aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"

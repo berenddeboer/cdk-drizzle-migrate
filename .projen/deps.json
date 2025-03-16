@@ -28,6 +28,11 @@
       "type": "build"
     },
     {
+      "name": "esbuild",
+      "version": "^0.25.1",
+      "type": "build"
+    },
+    {
       "name": "eslint-config-prettier",
       "type": "build"
     },

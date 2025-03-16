@@ -4,7 +4,7 @@ import { ArrowParens, TrailingComma } from "projen/lib/javascript"
 const project = new awscdk.AwsCdkConstructLibrary({
   author: "Berend de Boer",
   authorAddress: "berend@pobox.com",
-  keywords: ["aws", "aws-cdk", "rds", "aurora"],
+  keywords: ["aws", "aws-cdk", "rds", "aurora", "drizzle"],
   constructsVersion: "10.3.0",
   cdkVersion: "2.171.1",
   defaultReleaseBranch: "main",
@@ -35,16 +35,18 @@ const project = new awscdk.AwsCdkConstructLibrary({
   description: "AWS CDK construct for running Drizzle ORM migrations",
 
   deps: [],
-  devDeps: ["@types/aws-lambda", "pg@^8.14.0"],
+  devDeps: ["@types/aws-lambda", "pg@^8.14.0", "esbuild@^0.25.1"],
   bundledDeps: ["@aws-sdk/client-secrets-manager", "drizzle-kit", "drizzle-orm"],
   peerDeps: [],
 })
+
+// Needs to be here, else we get eslint 9
+project.package.addDevDeps("eslint@^8")
 
 project.addTask("format", {
   description: "Format code with prettier",
   exec: 'prettier --write "src/**/*.ts" "test/**/*.ts"',
 })
-project.package.addDevDeps("eslint@^8")
 
 // Add integration test tasks
 project.addTask("integ:deploy", {
