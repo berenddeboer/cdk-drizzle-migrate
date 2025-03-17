@@ -5,8 +5,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: "Berend de Boer",
   authorAddress: "berend@pobox.com",
   keywords: ["aws", "aws-cdk", "rds", "aurora", "drizzle"],
-  constructsVersion: "10.3.0",
   cdkVersion: "2.171.1",
+  constructsVersion: "10.3.0",
   defaultReleaseBranch: "main",
   jsiiVersion: "~5.7.0",
   name: "cdk-drizzle-migrate",
@@ -46,6 +46,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
 
   deps: [],
   devDeps: [
+    "aws-cdk",
     "@types/aws-lambda",
     "esbuild@^0.25.1",
     "@aws-sdk/client-secrets-manager",
