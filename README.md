@@ -22,14 +22,16 @@ This package assumes you deploy from a unix shell with access to `cp`,
 
 # Usage
 
-Have an RDS database and a secret that stores your db credentials.
+Have an RDS database and a secret that stores your db
+credentials. Usually this will be the root secret for your RDS
+database:
 
 ```ts
 import { DrizzleMigrate } from "@berenddeboer/cdk-drizzle-migrate"
 
 // Create the DrizzleMigrate construct
 const migrator = new DrizzleMigrate(this, "DrizzleMigration", {
-  dbSecret: secret,
+  dbSecret: database.secret!,
   migrationsPath: "migrations",
   vpc: vpc,
   vpcSubnets: {
@@ -67,7 +69,19 @@ you in the lambda.
 The default timeout is 5 minutes, you need to increase this if your
 migration takes more time.
 
-## Development Notes
+# Potential pitfalls
+
+1. The lambda can only run for 15 minutes. If your migrations take
+   longer, this solution will not work.
+
+# Working on this code
+
+1. Install packages: `npm i`
+
+2. Bootstrap CDK if not done: `npx cdk bootstrap
+   aws://123456/us-east-1`. Replace 123456 with your AWS account.
+
+## Handler notes
 
 When making changes to the Lambda handler code in `lambda/index.ts`, you need to transpile it to JavaScript:
 
@@ -80,16 +94,3 @@ construct.
 
 This technique is used to avoid having to bundle nodejs dependencies
 as that doesn't work well in this case.
-
-
-# Potential pitfalls
-
-1. The lambda can only run for 15 minutes. If your migrations take
-   longer, this solution will not work.
-
-# Working on this code
-
-1. Install packages: `npm i`
-
-2. Bootstrap CDK if not done: `npx cdk bootstrap
-   aws://123456/us-east-1`. Replace 123456 with your AWS account.
