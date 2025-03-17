@@ -83,6 +83,8 @@
     "aws-cdk",
     "cdk",
     "drizzle",
+    "drizzle-kit",
+    "drizzle-orm",
     "rds"
   ],
   "main": "lib/index.js",
