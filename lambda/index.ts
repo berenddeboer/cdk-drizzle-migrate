@@ -94,6 +94,7 @@ export async function onEvent(
           port: dbSecret.port,
           username: dbSecret.username,
           password: dbSecret.password,
+          database: dbSecret.dbname,
           ssl: sslConfig,
         })
         db = drizzle(sql)
