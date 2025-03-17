@@ -71,6 +71,7 @@ export class DrizzleMigrate extends Construct {
     super(scope, id)
 
     const migrationsDir = path.join(process.cwd(), props.migrationsPath)
+    const handlerDir = path.join(process.cwd(), "src", "handler")
 
     const onEventHandler = new NodejsFunction(this, "MigrateHandler", {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -91,6 +92,7 @@ export class DrizzleMigrate extends Construct {
         commandHooks: {
           beforeBundling(_: string, outputDir: string): string[] {
             return [
+              `cp ${handlerDir}/handler.js ${handlerDir}/handler.js.map ${outputDir}`,
               `cp -r ${migrationsDir} ${path.join(outputDir, "migrations")}`,
               `mkdir -p ${path.join(outputDir, "certs")}`,
               `curl -fL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o ${path.join(outputDir, "certs", "global-bundle.pem")}`,

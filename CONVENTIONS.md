@@ -9,7 +9,7 @@
 
 # The files
 - src/drizzle-migrate-provider.ts: the custom resource provider.
-- src/lambda/index.ts: the actual code for the custom resource handler.
+- lambda/handler.ts: the actual code for the custom resource handler. This code is transpiled with esbuild, and the resulting handler.js file is used in the custom resource lambda.
 - .projen/: directory with generated files. Do not change them. They are managed via `.projenrc.ts`.
 - .github/: directory with generated files. Do not change them. They are managed via `.projenrc.ts`.
 - .gitignore and .npmignore are generated files. Do not change them. They are managed vi `.projenrc.ts`.

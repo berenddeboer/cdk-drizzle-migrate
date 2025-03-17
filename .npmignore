@@ -30,6 +30,8 @@ integ/cdk.out
 .aider.*
 CONVENTIONS.md
 lambda
+!lib/hander/handler.js
+!lib/hander/handler.js.map
 /.gitattributes
 /.projenrc.ts
 /projenrc

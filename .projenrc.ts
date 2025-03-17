@@ -86,7 +86,7 @@ project.addTask("integ:generate-migrations", {
 
 project.addTask("build:handler", {
   description: "Transpile the Lambda handler to JavaScript",
-  exec: "esbuild lambda/index.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap",
+  exec: "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap",
 })
 
 project.tasks.tryFind("pre-compile")?.spawn(project.tasks.tryFind("build:handler")!)
@@ -97,5 +97,7 @@ project.addPackageIgnore("integ/cdk.out")
 project.addPackageIgnore(".aider.*")
 project.addPackageIgnore("CONVENTIONS.md")
 project.addPackageIgnore("lambda")
+project.addPackageIgnore("!lib/hander/handler.js")
+project.addPackageIgnore("!lib/hander/handler.js.map")
 
 project.synth()
