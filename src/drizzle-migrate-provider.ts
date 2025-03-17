@@ -103,7 +103,6 @@ export class DrizzleMigrate extends Construct {
             return []
           },
         },
-        nodeModules: ["drizzle-kit", "drizzle-orm"],
         ...props.handlerProps?.bundling,
       },
     })

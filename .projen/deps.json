@@ -13,6 +13,10 @@
       "type": "build"
     },
     {
+      "name": "@types/pg",
+      "type": "build"
+    },
+    {
       "name": "@typescript-eslint/eslint-plugin",
       "version": "^8",
       "type": "build"
@@ -86,11 +90,6 @@
       "type": "build"
     },
     {
-      "name": "pg",
-      "version": "^8.14.0",
-      "type": "build"
-    },
-    {
       "name": "prettier",
       "type": "build"
     },
@@ -120,6 +119,14 @@
     },
     {
       "name": "drizzle-orm",
+      "type": "bundled"
+    },
+    {
+      "name": "mysql2",
+      "type": "bundled"
+    },
+    {
+      "name": "postgres",
       "type": "bundled"
     },
     {

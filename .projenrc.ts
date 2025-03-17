@@ -30,13 +30,29 @@ const project = new awscdk.AwsCdkConstructLibrary({
     devdirs: ["test"],
     prettier: true,
   },
+  tsconfigDev: {
+    compilerOptions: {
+      esModuleInterop: true,
+    },
+  },
   projenrcTs: true,
   repositoryUrl: "https://github.com/berenddeboer/cdk-drizzle-migrate.git",
   description: "AWS CDK construct for running Drizzle ORM migrations",
 
   deps: [],
-  devDeps: ["@types/aws-lambda", "pg@^8.14.0", "esbuild@^0.25.1"],
-  bundledDeps: ["@aws-sdk/client-secrets-manager", "drizzle-kit", "drizzle-orm"],
+  devDeps: [
+    "@types/aws-lambda",
+    "esbuild@^0.25.1",
+    "@types/pg",
+    "@types/postgres",
+  ],
+  bundledDeps: [
+    "@aws-sdk/client-secrets-manager",
+    "drizzle-kit",
+    "drizzle-orm",
+    "postgres",
+    "mysql2",
+  ],
   peerDeps: [],
 })
 
@@ -81,23 +97,5 @@ project.addTask("clean:package:js", {
     rm -rf tmp;
   done`,
 })
-
-// Append a custom cleaning step to the release_npm job in the release workflow
-const releaseWorkflowAny = project.github?.tryFindWorkflow("release") as any
-if (releaseWorkflowAny) {
-  const releaseNpmJob = releaseWorkflowAny.jobs.release_npm
-  if (releaseNpmJob) {
-    const cleanStep = { name: "Clean js artifact", run: "npx projen clean:package:js" }
-    // Insert cleanStep immediately before the "Release" step.
-    const releaseStepIndex = releaseNpmJob.steps.findIndex(
-      (step: { name?: string }) => step.name === "Release"
-    )
-    if (releaseStepIndex >= 0) {
-      releaseNpmJob.steps.splice(releaseStepIndex, 0, cleanStep)
-    } else {
-      releaseNpmJob.addStep(cleanStep)
-    }
-  }
-}
 
 project.synth()

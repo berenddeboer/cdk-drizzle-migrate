@@ -43,6 +43,7 @@
     "@types/aws-lambda": "^8.10.147",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.10",
+    "@types/pg": "^8.11.11",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "aws-cdk-lib": "2.171.1",
@@ -61,7 +62,6 @@
     "jsii-docgen": "^10.5.0",
     "jsii-pacmak": "^1.109.0",
     "jsii-rosetta": "~5.7.0",
-    "pg": "^8.14.0",
     "prettier": "^3.5.3",
     "projen": "^0.91.14",
     "ts-jest": "^29.2.6",
@@ -75,12 +75,16 @@
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.758.0",
     "drizzle-kit": "^0.30.5",
-    "drizzle-orm": "^0.40.0"
+    "drizzle-orm": "^0.40.0",
+    "mysql2": "^3.13.0",
+    "postgres": "^3.4.5"
   },
   "bundledDependencies": [
     "@aws-sdk/client-secrets-manager",
     "drizzle-kit",
-    "drizzle-orm"
+    "drizzle-orm",
+    "mysql2",
+    "postgres"
   ],
   "keywords": [
     "aurora",
