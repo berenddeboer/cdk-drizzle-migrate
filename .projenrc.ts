@@ -11,7 +11,12 @@ const project = new awscdk.AwsCdkConstructLibrary({
   jsiiVersion: "~5.7.0",
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
-  gitignore: [".envrc", "integ/cdk.out/"],
+  gitignore: [
+    ".envrc",
+    "integ/cdk.out/",
+    "src/handler/handler.js",
+    "src/handler/handler.js.map",
+  ],
   prettier: true,
   prettierOptions: {
     yaml: true,
@@ -43,16 +48,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   devDeps: [
     "@types/aws-lambda",
     "esbuild@^0.25.1",
-    "@types/pg",
-    "@types/postgres",
-  ],
-  bundledDeps: [
     "@aws-sdk/client-secrets-manager",
     "drizzle-kit",
     "drizzle-orm",
     "postgres",
     "mysql2",
   ],
+  bundledDeps: [],
   peerDeps: [],
 })
 
@@ -81,21 +83,16 @@ project.addTask("integ:generate-migrations", {
   exec: "cd integ && npx drizzle-kit generate",
 })
 
+project.addTask("build:handler", {
+  description: "Transpile the Lambda handler to JavaScript",
+  exec: "esbuild lambda/index.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap",
+})
+
 project.addPackageIgnore(".envrc")
 project.addPackageIgnore("*~")
 project.addPackageIgnore("integ/cdk.out")
 project.addPackageIgnore(".aider.*")
 project.addPackageIgnore("CONVENTIONS.md")
-
-project.addTask("clean:package:js", {
-  description: "Remove esbuild symlinks from the JSII tarball",
-  exec: `for f in dist/js/*.tgz; do
-    mkdir -p tmp && tar -xzf "$f" -C tmp &&
-    rm tmp/package/node_modules/drizzle-kit/node_modules/@esbuild/linux-x64/bin/esbuild
-    rm tmp/package/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/linux-x64/bin/esbuild
-    tar -czf "$f" -C tmp package &&
-    rm -rf tmp;
-  done`,
-})
+project.addPackageIgnore("lambda")
 
 project.synth()

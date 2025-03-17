@@ -29,6 +29,7 @@ tsconfig.tsbuildinfo
 integ/cdk.out
 .aider.*
 CONVENTIONS.md
+lambda
 /.gitattributes
 /.projenrc.ts
 /projenrc

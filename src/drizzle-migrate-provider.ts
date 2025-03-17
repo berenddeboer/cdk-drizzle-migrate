@@ -74,7 +74,7 @@ export class DrizzleMigrate extends Construct {
 
     const onEventHandler = new NodejsFunction(this, "MigrateHandler", {
       runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, "lambda", "index.ts"),
+      entry: path.join(__dirname, "handler", "index.ts"),
       handler: "onEvent",
       logRetention: logs.RetentionDays.ONE_WEEK,
       timeout: Duration.minutes(5),

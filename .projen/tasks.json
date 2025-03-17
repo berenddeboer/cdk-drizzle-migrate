@@ -24,6 +24,15 @@
         }
       ]
     },
+    "build:handler": {
+      "name": "build:handler",
+      "description": "Transpile the Lambda handler to JavaScript",
+      "steps": [
+        {
+          "exec": "esbuild lambda/index.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap"
+        }
+      ]
+    },
     "bump": {
       "name": "bump",
       "description": "Bumps version based on latest git tag and generates a changelog entry",
@@ -41,15 +50,6 @@
         }
       ],
       "condition": "git log --oneline -1 | grep -qv \"chore(release):\""
-    },
-    "clean:package:js": {
-      "name": "clean:package:js",
-      "description": "Remove esbuild symlinks from the JSII tarball",
-      "steps": [
-        {
-          "exec": "for f in dist/js/*.tgz; do\n    mkdir -p tmp && tar -xzf \"$f\" -C tmp &&\n    rm tmp/package/node_modules/drizzle-kit/node_modules/@esbuild/linux-x64/bin/esbuild\n    rm tmp/package/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/linux-x64/bin/esbuild\n    tar -czf \"$f\" -C tmp package &&\n    rm -rf tmp;\n  done"
-        }
-      ]
     },
     "clobber": {
       "name": "clobber",
@@ -318,13 +318,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@types/aws-lambda,@types/jest,@types/node,@types/pg,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,prettier,projen,ts-jest,ts-node,typescript,@aws-sdk/client-secrets-manager,drizzle-kit,drizzle-orm,mysql2,postgres"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@types/aws-lambda,@types/jest,@types/node,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript"
         },
         {
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/aws-lambda @types/jest @types/node @types/pg @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii prettier projen ts-jest ts-node typescript @aws-sdk/client-secrets-manager drizzle-kit drizzle-orm mysql2 postgres aws-cdk-lib constructs"
+          "exec": "npm update @aws-sdk/client-secrets-manager @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version drizzle-kit drizzle-orm esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii mysql2 postgres prettier projen ts-jest ts-node typescript aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"

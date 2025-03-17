@@ -62,6 +62,16 @@ you in the lambda.
 The default timeout is 5 minutes, you need to increase this if your
 migration takes more time.
 
+## Development Notes
+
+When making changes to the Lambda handler code in `src/lambda/index.ts`, you need to transpile it to JavaScript:
+
+```bash
+npx projen build:handler
+```
+
+This will generate `src/handler.js` which is used by the CDK construct. This step is required before publishing the package.
+
 
 # Potential pitfalls
 

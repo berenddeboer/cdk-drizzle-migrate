@@ -1,6 +1,10 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-secrets-manager",
+      "type": "build"
+    },
+    {
       "name": "@types/aws-lambda",
       "type": "build"
     },
@@ -10,10 +14,6 @@
     },
     {
       "name": "@types/node",
-      "type": "build"
-    },
-    {
-      "name": "@types/pg",
       "type": "build"
     },
     {
@@ -29,6 +29,14 @@
     {
       "name": "commit-and-tag-version",
       "version": "^12",
+      "type": "build"
+    },
+    {
+      "name": "drizzle-kit",
+      "type": "build"
+    },
+    {
+      "name": "drizzle-orm",
       "type": "build"
     },
     {
@@ -90,6 +98,14 @@
       "type": "build"
     },
     {
+      "name": "mysql2",
+      "type": "build"
+    },
+    {
+      "name": "postgres",
+      "type": "build"
+    },
+    {
       "name": "prettier",
       "type": "build"
     },
@@ -108,26 +124,6 @@
     {
       "name": "typescript",
       "type": "build"
-    },
-    {
-      "name": "@aws-sdk/client-secrets-manager",
-      "type": "bundled"
-    },
-    {
-      "name": "drizzle-kit",
-      "type": "bundled"
-    },
-    {
-      "name": "drizzle-orm",
-      "type": "bundled"
-    },
-    {
-      "name": "mysql2",
-      "type": "bundled"
-    },
-    {
-      "name": "postgres",
-      "type": "bundled"
     },
     {
       "name": "aws-cdk-lib",

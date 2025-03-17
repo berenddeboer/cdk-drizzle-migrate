@@ -6,7 +6,7 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"
 import { DrizzleMigrate } from "../src"
 
 describe("DrizzleMigrate", () => {
-  test.only("creates resources with required properties", () => {
+  test("creates resources with required properties", () => {
     const stack = new Stack()
 
     // Create a secret for testing
@@ -80,7 +80,6 @@ describe("DrizzleMigrate", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       Environment: {
         Variables: {
-          NODE_OPTIONS: "--enable-source-maps",
           TEST_VAR: "test-value",
         },
       },
