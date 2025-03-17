@@ -89,6 +89,8 @@ project.addTask("build:handler", {
   exec: "esbuild lambda/index.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap",
 })
 
+project.tasks.tryFind("pre-compile")?.spawn(project.tasks.tryFind("build:handler")!)
+
 project.addPackageIgnore(".envrc")
 project.addPackageIgnore("*~")
 project.addPackageIgnore("integ/cdk.out")
