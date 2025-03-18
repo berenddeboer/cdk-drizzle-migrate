@@ -30,8 +30,8 @@ integ/
 .aider.*
 CONVENTIONS.md
 lambda
-!lib/handler/handler.js
-!lib/handler/handler.js.map
+!/lib/handler/handler.js
+!/lib/handler/handler.js.map
 /.gitattributes
 /.projenrc.ts
 /projenrc
