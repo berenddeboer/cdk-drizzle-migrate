@@ -1,4 +1,5 @@
 import * as path from "path"
+import { existsSync } from "fs"
 import { CfnResource, CustomResource, Duration } from "aws-cdk-lib"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
 import * as lambda from "aws-cdk-lib/aws-lambda"
@@ -73,10 +74,13 @@ export class DrizzleMigrate extends Construct {
     const migrationsDir = path.join(process.cwd(), props.migrationsPath)
     const handlerDir = path.join(__dirname, "handler")
 
+    const ts_filename = `${__dirname}/index.ts`
+    const js_filename = `${__dirname}/index.js`
+    const entry = existsSync(js_filename) ? js_filename : ts_filename
+
     const onEventHandler = new NodejsFunction(this, "MigrateHandler", {
       runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, "handler", "index.ts"),
-      handler: "handler",
+      entry: entry,
       logRetention: logs.RetentionDays.ONE_WEEK,
       timeout: Duration.minutes(5),
       vpc: props.vpc,
