@@ -1,5 +1,5 @@
-import * as path from "path"
 import { existsSync } from "fs"
+import * as path from "path"
 import { CfnResource, CustomResource, Duration } from "aws-cdk-lib"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
 import * as lambda from "aws-cdk-lib/aws-lambda"
