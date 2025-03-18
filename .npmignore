@@ -26,12 +26,12 @@ tsconfig.tsbuildinfo
 !.jsii
 .envrc
 *~
-integ/*/cdk.out
+integ/
 .aider.*
 CONVENTIONS.md
 lambda
-!lib/hander/handler.js
-!lib/hander/handler.js.map
+!lib/handler/handler.js
+!lib/handler/handler.js.map
 /.gitattributes
 /.projenrc.ts
 /projenrc

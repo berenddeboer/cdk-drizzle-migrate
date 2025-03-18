@@ -127,11 +127,11 @@ project.tasks.tryFind("pre-compile")?.spawn(project.tasks.tryFind("build:handler
 
 project.addPackageIgnore(".envrc")
 project.addPackageIgnore("*~")
-project.addPackageIgnore("integ/*/cdk.out")
+project.addPackageIgnore("integ/")
 project.addPackageIgnore(".aider.*")
 project.addPackageIgnore("CONVENTIONS.md")
 project.addPackageIgnore("lambda")
-project.addPackageIgnore("!lib/hander/handler.js")
-project.addPackageIgnore("!lib/hander/handler.js.map")
+project.addPackageIgnore("!lib/handler/handler.js")
+project.addPackageIgnore("!lib/handler/handler.js.map")
 
 project.synth()
