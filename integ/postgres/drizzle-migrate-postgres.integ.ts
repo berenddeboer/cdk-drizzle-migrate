@@ -1,7 +1,7 @@
 import { App, Stack, StackProps, CfnOutput, RemovalPolicy } from "aws-cdk-lib"
 import * as rds from "aws-cdk-lib/aws-rds"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
-import { DrizzleMigrate } from "../src"
+import { DrizzleMigrate } from "../../src"
 
 class DrizzleMigrateIntegStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
@@ -52,7 +52,7 @@ class DrizzleMigrateIntegStack extends Stack {
     })
 
     // Create the DrizzleMigrate construct
-    const migrator = new DrizzleMigrate(this, "DrizzleMigration", {
+    new DrizzleMigrate(this, "DrizzleMigration", {
       dbSecret: database.secret!,
       migrationsPath: "migrations",
       vpc: vpc,
@@ -60,16 +60,7 @@ class DrizzleMigrateIntegStack extends Stack {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
       },
       cluster: database, // Pass the database instance to allow automatic security group configuration
-      handlerProps: {
-        environment: {
-          TEST_INTEGRATION: "true",
-          TEST: "1",
-        },
-      },
     })
-
-    // Add dependency to ensure database is created before migrations run
-    migrator.resource.node.addDependency(database)
 
     // Output the database endpoint for reference
     new CfnOutput(this, "DatabaseEndpoint", {
