@@ -11,12 +11,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   jsiiVersion: "~5.7.0",
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
-  gitignore: [
-    ".envrc",
-    "integ/*/cdk.out/",
-    "src/handler/handler.js",
-    "src/handler/handler.js.map",
-  ],
+  gitignore: [".envrc", "integ/*/cdk.out/", "src/handler/handler.js"],
   prettier: true,
   prettierOptions: {
     yaml: true,
@@ -120,18 +115,25 @@ project.addTask("integ:generate-migrations:mariadb", {
 
 project.addTask("build:handler", {
   description: "Transpile the Lambda handler to JavaScript",
-  exec: "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap",
+  exec: "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js",
+})
+
+project.addTask("copy:handler", {
+  description: "Copy transpiled handler into lib",
+  exec: "cp src/handler/handler.js lib/handler/handler.js",
 })
 
 project.tasks.tryFind("pre-compile")?.spawn(project.tasks.tryFind("build:handler")!)
+project.tasks.tryFind("compile")?.spawn(project.tasks.tryFind("copy:handler")!)
 
 project.addPackageIgnore(".envrc")
 project.addPackageIgnore("*~")
 project.addPackageIgnore("integ/")
 project.addPackageIgnore(".aider.*")
+project.addPackageIgnore(".aiderignore")
 project.addPackageIgnore("CONVENTIONS.md")
 project.addPackageIgnore("lambda")
-project.addPackageIgnore("!/lib/handler/handler.js")
-project.addPackageIgnore("!/lib/handler/handler.js.map")
+//project.addPackageIgnore("!/lib/handler/handler.js")
+//project.addPackageIgnore("!/lib/handler/handler.js.map")
 
 project.synth()

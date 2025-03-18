@@ -28,10 +28,9 @@ tsconfig.tsbuildinfo
 *~
 integ/
 .aider.*
+.aiderignore
 CONVENTIONS.md
 lambda
-!/lib/handler/handler.js
-!/lib/handler/handler.js.map
 /.gitattributes
 /.projenrc.ts
 /projenrc

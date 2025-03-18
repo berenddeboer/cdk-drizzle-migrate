@@ -29,7 +29,7 @@
       "description": "Transpile the Lambda handler to JavaScript",
       "steps": [
         {
-          "exec": "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js --sourcemap"
+          "exec": "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js"
         }
       ]
     },
@@ -98,6 +98,18 @@
       "steps": [
         {
           "exec": "jsii --silence-warnings=reserved-word"
+        },
+        {
+          "spawn": "copy:handler"
+        }
+      ]
+    },
+    "copy:handler": {
+      "name": "copy:handler",
+      "description": "Copy transpiled handler into lib",
+      "steps": [
+        {
+          "exec": "cp src/handler/handler.js lib/handler/handler.js"
         }
       ]
     },

@@ -87,12 +87,12 @@ export class DrizzleMigrate extends Construct {
         ...(props.handlerProps?.environment || {}),
       },
       bundling: {
-        sourceMap: true,
+        sourceMap: false,
         // Include the migrations directory in the bundle
         commandHooks: {
           beforeBundling(_: string, outputDir: string): string[] {
             return [
-              `cp ${handlerDir}/handler.js ${handlerDir}/handler.js.map ${outputDir}`,
+              `cp ${handlerDir}/handler.js ${outputDir}`,
               `cp -r ${migrationsDir} ${path.join(outputDir, "migrations")}`,
               `mkdir -p ${path.join(outputDir, "certs")}`,
               `curl -fL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o ${path.join(outputDir, "certs", "global-bundle.pem")}`,

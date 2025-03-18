@@ -33,7 +33,6 @@ jspm_packages/
 .envrc
 integ/*/cdk.out/
 src/handler/handler.js
-src/handler/handler.js.map
 /test-reports/
 junit.xml
 /coverage/
