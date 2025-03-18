@@ -171,30 +171,93 @@
         }
       ]
     },
-    "integ:deploy": {
-      "name": "integ:deploy",
-      "description": "Deploy the integration test stack",
+    "integ:deploy:all": {
+      "name": "integ:deploy:all",
+      "description": "Deploy all integration test stacks",
       "steps": [
         {
-          "exec": "cd integ && npx cdk deploy --require-approval never"
+          "exec": "cd integ && npx cdk deploy --all --require-approval never"
         }
       ]
     },
-    "integ:destroy": {
-      "name": "integ:destroy",
-      "description": "Destroy the integration test stack",
+    "integ:deploy:aurora-serverless": {
+      "name": "integ:deploy:aurora-serverless",
+      "description": "Deploy the Aurora Serverless integration test stack",
       "steps": [
         {
-          "exec": "cd integ && npx cdk destroy"
+          "exec": "cd integ/serverless && npx cdk deploy DrizzleMigrateAuroraServerlessIntegStack --require-approval never"
         }
       ]
     },
-    "integ:generate-migrations": {
-      "name": "integ:generate-migrations",
+    "integ:deploy:mariadb": {
+      "name": "integ:deploy:mariadb",
+      "description": "Deploy the MariaDB integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/mariadb && npx cdk deploy DrizzleMigrateMariaDBIntegStack --require-approval never"
+        }
+      ]
+    },
+    "integ:deploy:postgres": {
+      "name": "integ:deploy:postgres",
+      "description": "Deploy the PostgreSQL integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/postgres && npx cdk deploy DrizzleMigrateIntegStack --require-approval never"
+        }
+      ]
+    },
+    "integ:destroy:all": {
+      "name": "integ:destroy:all",
+      "description": "Destroy all integration test stacks",
+      "steps": [
+        {
+          "exec": "cd integ && npx cdk destroy --all"
+        }
+      ]
+    },
+    "integ:destroy:aurora-serverless": {
+      "name": "integ:destroy:aurora-serverless",
+      "description": "Destroy the Aurora Serverless integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ && npx cdk destroy DrizzleMigrateAuroraServerlessIntegStack"
+        }
+      ]
+    },
+    "integ:destroy:mariadb": {
+      "name": "integ:destroy:mariadb",
+      "description": "Destroy the MariaDB integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ && npx cdk destroy DrizzleMigrateMariaDBIntegStack"
+        }
+      ]
+    },
+    "integ:destroy:postgres": {
+      "name": "integ:destroy:postgres",
+      "description": "Destroy the PostgreSQL integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ && npx cdk destroy DrizzleMigrateIntegStack"
+        }
+      ]
+    },
+    "integ:generate-migrations:mariadb": {
+      "name": "integ:generate-migrations:mariadb",
       "description": "Generate Drizzle migrations for the integration test",
       "steps": [
         {
-          "exec": "cd integ && npx drizzle-kit generate"
+          "exec": "cd integ/mariadb && npx drizzle-kit generate"
+        }
+      ]
+    },
+    "integ:generate-migrations:postgres": {
+      "name": "integ:generate-migrations:postgres",
+      "description": "Generate Drizzle migrations for the integration test",
+      "steps": [
+        {
+          "exec": "cd integ/postgres && npx drizzle-kit generate"
         }
       ]
     },
@@ -323,13 +386,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@types/aws-lambda,@types/jest,@types/node,aws-cdk,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@types/jest,@types/node,aws-cdk,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript,@types/aws-lambda"
         },
         {
           "exec": "npm install"
         },
         {
-          "exec": "npm update @aws-sdk/client-secrets-manager @types/aws-lambda @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version drizzle-kit drizzle-orm esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii mysql2 postgres prettier projen ts-jest ts-node typescript aws-cdk-lib constructs"
+          "exec": "npm update @aws-sdk/client-secrets-manager @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version drizzle-kit drizzle-orm esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii mysql2 postgres prettier projen ts-jest ts-node typescript @types/aws-lambda aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"

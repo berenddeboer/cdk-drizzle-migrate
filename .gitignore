@@ -31,7 +31,7 @@ jspm_packages/
 .yarn-integrity
 .cache
 .envrc
-integ/cdk.out/
+integ/*/cdk.out/
 src/handler/handler.js
 src/handler/handler.js.map
 /test-reports/

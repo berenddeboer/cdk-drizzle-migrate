@@ -1,7 +1,8 @@
 # About
 
 This CDK construct library makes it possible to run the drizzle
-migrate at deploy of your stack time against the RDS cluster of your choice.
+migrate at deploy of your stack time against the RDS cluster of your
+choice. The supported engines are PostgreSQL, MariaDB and MySQL.
 
 This construct library is intended to be used in enterprise
 environments, and works in isolated subnets.
@@ -41,14 +42,6 @@ const migrator = new DrizzleMigrate(this, "DrizzleMigration", {
 })
 ```
 
-Specify the path where the migrations are stored, `migrations` in this case.
-
-Passing your database cluster is optional. If supplied, the lambda's
-security group will be added as allowed source to the database security group.
-
-If you do not pass one, make sure to pass in a security group in
-`handlerProps.securityGroups` which can connect to your database.
-
 Your secret should look like the standard one created by CDK:
 
 ```json
@@ -63,11 +56,29 @@ Your secret should look like the standard one created by CDK:
 }
 ```
 
+Specify the path where the migrations are stored, `migrations` in this case.
+
 When this resource is deployed, it will run `drizzle-kit migrate` for
 you in the lambda.
 
 The default timeout is 5 minutes, you need to increase this if your
 migration takes more time.
+
+Passing your database cluster is optional. If supplied, the lambda's
+security group will be added as allowed source to the database
+security group if no security group is present in
+`handlerProps.securityGroups`.
+
+If you do not pass a cluster, make sure to pass in a security group in
+`handlerProps.securityGroups` which can connect to your database.
+
+Also if you do not pass a cluster you, but still create a database,
+you may wish to add a dependency to make sure the database is created,
+before the migration is run:
+
+```ts
+migrator.resource.node.addDependency(cluster)
+```
 
 # Potential pitfalls
 

@@ -13,7 +13,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   packageManager: javascript.NodePackageManager.NPM,
   gitignore: [
     ".envrc",
-    "integ/cdk.out/",
+    "integ/*/cdk.out/",
     "src/handler/handler.js",
     "src/handler/handler.js.map",
   ],
@@ -44,10 +44,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
   repositoryUrl: "https://github.com/berenddeboer/cdk-drizzle-migrate.git",
   description: "AWS CDK construct for running Drizzle ORM migrations",
 
-  deps: [],
+  deps: ["@types/aws-lambda"],
   devDeps: [
     "aws-cdk",
-    "@types/aws-lambda",
     "esbuild@^0.25.1",
     "@aws-sdk/client-secrets-manager",
     "drizzle-kit",
@@ -55,7 +54,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     "postgres",
     "mysql2",
   ],
-  bundledDeps: [],
+  bundledDeps: ["@types/aws-lambda"],
   peerDeps: [],
 })
 
@@ -68,20 +67,55 @@ project.addTask("format", {
 })
 
 // Add integration test tasks
-project.addTask("integ:deploy", {
-  description: "Deploy the integration test stack",
-  exec: "cd integ && npx cdk deploy --require-approval never",
+project.addTask("integ:deploy:postgres", {
+  description: "Deploy the PostgreSQL integration test stack",
+  exec: "cd integ/postgres && npx cdk deploy DrizzleMigrateIntegStack --require-approval never",
 })
 
-project.addTask("integ:destroy", {
-  description: "Destroy the integration test stack",
-  exec: "cd integ && npx cdk destroy",
+project.addTask("integ:deploy:mariadb", {
+  description: "Deploy the MariaDB integration test stack",
+  exec: "cd integ/mariadb && npx cdk deploy DrizzleMigrateMariaDBIntegStack --require-approval never",
+})
+
+project.addTask("integ:deploy:aurora-serverless", {
+  description: "Deploy the Aurora Serverless integration test stack",
+  exec: "cd integ/serverless && npx cdk deploy DrizzleMigrateAuroraServerlessIntegStack --require-approval never",
+})
+
+project.addTask("integ:deploy:all", {
+  description: "Deploy all integration test stacks",
+  exec: "cd integ && npx cdk deploy --all --require-approval never",
+})
+
+project.addTask("integ:destroy:postgres", {
+  description: "Destroy the PostgreSQL integration test stack",
+  exec: "cd integ && npx cdk destroy DrizzleMigrateIntegStack",
+})
+
+project.addTask("integ:destroy:mariadb", {
+  description: "Destroy the MariaDB integration test stack",
+  exec: "cd integ && npx cdk destroy DrizzleMigrateMariaDBIntegStack",
+})
+
+project.addTask("integ:destroy:aurora-serverless", {
+  description: "Destroy the Aurora Serverless integration test stack",
+  exec: "cd integ && npx cdk destroy DrizzleMigrateAuroraServerlessIntegStack",
+})
+
+project.addTask("integ:destroy:all", {
+  description: "Destroy all integration test stacks",
+  exec: "cd integ && npx cdk destroy --all",
 })
 
 // Add task to generate migrations
-project.addTask("integ:generate-migrations", {
+project.addTask("integ:generate-migrations:postgres", {
   description: "Generate Drizzle migrations for the integration test",
-  exec: "cd integ && npx drizzle-kit generate",
+  exec: "cd integ/postgres && npx drizzle-kit generate",
+})
+
+project.addTask("integ:generate-migrations:mariadb", {
+  description: "Generate Drizzle migrations for the integration test",
+  exec: "cd integ/mariadb && npx drizzle-kit generate",
 })
 
 project.addTask("build:handler", {
@@ -93,7 +127,7 @@ project.tasks.tryFind("pre-compile")?.spawn(project.tasks.tryFind("build:handler
 
 project.addPackageIgnore(".envrc")
 project.addPackageIgnore("*~")
-project.addPackageIgnore("integ/cdk.out")
+project.addPackageIgnore("integ/*/cdk.out")
 project.addPackageIgnore(".aider.*")
 project.addPackageIgnore("CONVENTIONS.md")
 project.addPackageIgnore("lambda")

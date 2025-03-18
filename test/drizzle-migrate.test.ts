@@ -28,7 +28,7 @@ describe("DrizzleMigrate", () => {
 
     // Verify Lambda function is created
     template.hasResourceProperties("AWS::Lambda::Function", {
-      Handler: "index.onEvent",
+      Handler: "index.handler",
       Runtime: "nodejs20.x",
       Timeout: 300,
     })

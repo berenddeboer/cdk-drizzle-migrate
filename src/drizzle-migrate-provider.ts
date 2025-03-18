@@ -71,12 +71,12 @@ export class DrizzleMigrate extends Construct {
     super(scope, id)
 
     const migrationsDir = path.join(process.cwd(), props.migrationsPath)
-    const handlerDir = path.join(process.cwd(), "src", "handler")
+    const handlerDir = path.join(__dirname, "handler")
 
     const onEventHandler = new NodejsFunction(this, "MigrateHandler", {
       runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, "handler", "index.ts"),
-      handler: "onEvent",
+      handler: "handler",
       logRetention: logs.RetentionDays.ONE_WEEK,
       timeout: Duration.minutes(5),
       vpc: props.vpc,
@@ -145,6 +145,11 @@ export class DrizzleMigrate extends Construct {
     })
 
     const resourceCfn = this.resource.node.defaultChild as CfnResource
-    resourceCfn.addPropertyOverride("ServiceTimeout", 900)
+    resourceCfn.addPropertyOverride("ServiceTimeout", 180)
+
+    // Add dependency to ensure database is created before migrations run
+    if (props.cluster) {
+      this.resource.node.addDependency(props.cluster)
+    }
   }
 }

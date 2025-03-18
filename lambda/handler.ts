@@ -41,8 +41,6 @@ export async function onEvent(
   const { RequestType, ResourceProperties } = event
   const { secretArn, migrationsPath } = ResourceProperties
 
-  const physicalResourceId = `drizzle-migrate-${Date.now()}`
-
   if (RequestType === "Create" || RequestType === "Update") {
     // Retrieve the secret
     const secretsManager = new SecretsManagerClient({})
@@ -51,18 +49,14 @@ export async function onEvent(
         SecretId: secretArn,
       })
     )
-
     if (!secretResponse.SecretString) {
       throw new Error("Secret value is empty")
     }
-
     const dbSecret: DatabaseSecret = JSON.parse(secretResponse.SecretString)
 
-    // Run migrations directly using Drizzle ORM
-    console.log("Running migrations from:", path.resolve(migrationsPath))
+    const physicalResourceId = `drizzle-migrate-${dbSecret.dbname}`
 
     // Connect to the database based on engine type
-    let db
     const engine = dbSecret.engine.toLowerCase()
     const sslConfig = {
       ca: fs.readFileSync(`${process.env.LAMBDA_TASK_ROOT}/certs/global-bundle.pem`),
@@ -71,24 +65,28 @@ export async function onEvent(
 
     switch (engine) {
       case "mysql":
-      case "mariadb":
+      case "mariadb": {
+        console.log(`Migrating MySQL/MariaDB database ${dbSecret.dbname} using migrations from ${path.resolve(migrationsPath)}`)
         const connection = await mysql.createConnection({
           host: dbSecret.host,
           port: dbSecret.port,
           user: dbSecret.username,
           password: dbSecret.password,
+          database: dbSecret.dbname,
           ssl: sslConfig,
         })
-        db = drizzleMysql(connection)
-        // Use MySQL migrator
-        console.log(`Migrating MySQL database using migrations from ${migrationsPath}`)
+        const db = drizzleMysql(connection)
         await import("drizzle-orm/mysql2/migrator").then(({ migrate }) =>
           migrate(db, { migrationsFolder: path.resolve(migrationsPath) })
         )
         break
+      }
 
       case "postgres":
-      case "postgresql":
+      case "postgresql": {
+        console.log(
+          `Migrating PostgreSQL database ${dbSecret.dbname} using migrations from ${path.resolve(migrationsPath)}`
+        )
         const sql = postgres({
           host: dbSecret.host,
           port: dbSecret.port,
@@ -97,18 +95,16 @@ export async function onEvent(
           database: dbSecret.dbname,
           ssl: sslConfig,
         })
-        db = drizzle(sql)
-        // Use PostgreSQL migrator
-        console.log(
-          `Migrating PostgreSQL database using migrations from ${migrationsPath}`
-        )
+        const db = drizzle(sql)
         await import("drizzle-orm/postgres-js/migrator").then(({ migrate }) =>
           migrate(db, { migrationsFolder: path.resolve(migrationsPath) })
         )
         break
+      }
 
-      default:
+      default: {
         throw new Error(`Unsupported database engine: ${engine}`)
+      }
     }
     console.log("Migration completed successfully")
 
@@ -119,6 +115,6 @@ export async function onEvent(
 
   // For Delete events, we don't need to do anything
   return {
-    PhysicalResourceId: event.PhysicalResourceId || physicalResourceId,
+    PhysicalResourceId: event.PhysicalResourceId
   }
 }

@@ -1,5 +1,5 @@
 import { CloudFormationCustomResourceEvent } from "aws-lambda"
-import { CustomResourceResponse } from "../lambda/index"
+import { CustomResourceResponse } from "aws-lambda"
 
 export declare function onEvent(
   event: CloudFormationCustomResourceEvent
