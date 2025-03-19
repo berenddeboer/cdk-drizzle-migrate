@@ -3,7 +3,7 @@ import * as rds from "aws-cdk-lib/aws-rds"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
 import { DrizzleMigrate } from "../../src"
 
-class DrizzleMigrateIntegStack extends Stack {
+class DrizzleMigratePostgresIntegStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props)
 
@@ -75,4 +75,4 @@ class DrizzleMigrateIntegStack extends Stack {
 }
 
 const app = new App()
-new DrizzleMigrateIntegStack(app, "DrizzleMigrateIntegStack")
+new DrizzleMigratePostgresIntegStack(app, "DrizzleMigratePostgresIntegStack")

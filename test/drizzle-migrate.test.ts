@@ -47,6 +47,11 @@ describe("DrizzleMigrate", () => {
         ],
       },
     })
+
+    // Verify our service timeout matches lambda timeout
+    template.hasResourceProperties("AWS::CloudFormation::CustomResource", {
+      ServiceTimeout: 900,
+    })
   })
 
   test("respects custom handler properties", () => {

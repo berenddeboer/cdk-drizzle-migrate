@@ -11,7 +11,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   jsiiVersion: "~5.7.0",
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
-  gitignore: [".envrc", "integ/*/cdk.out/", "src/handler/handler.js"],
+  gitignore: [".envrc", ".env", "integ/*/cdk.out/", "src/handler/handler.js"],
   prettier: true,
   prettierOptions: {
     yaml: true,
@@ -64,17 +64,17 @@ project.addTask("format", {
 // Add integration test tasks
 project.addTask("integ:deploy:postgres", {
   description: "Deploy the PostgreSQL integration test stack",
-  exec: "cd integ/postgres && npx cdk deploy DrizzleMigrateIntegStack --require-approval never",
+  exec: "cd integ/postgres && npx cdk deploy --require-approval never",
 })
 
 project.addTask("integ:deploy:mariadb", {
   description: "Deploy the MariaDB integration test stack",
-  exec: "cd integ/mariadb && npx cdk deploy DrizzleMigrateMariaDBIntegStack --require-approval never",
+  exec: "cd integ/mariadb && npx cdk deploy --require-approval never",
 })
 
 project.addTask("integ:deploy:aurora-serverless", {
   description: "Deploy the Aurora Serverless integration test stack",
-  exec: "cd integ/serverless && npx cdk deploy DrizzleMigrateAuroraServerlessIntegStack --require-approval never",
+  exec: "cd integ/serverless && npx cdk deploy --require-approval never",
 })
 
 project.addTask("integ:deploy:all", {
@@ -84,17 +84,17 @@ project.addTask("integ:deploy:all", {
 
 project.addTask("integ:destroy:postgres", {
   description: "Destroy the PostgreSQL integration test stack",
-  exec: "cd integ && npx cdk destroy DrizzleMigrateIntegStack",
+  exec: "cd integ && npx cdk destroy",
 })
 
 project.addTask("integ:destroy:mariadb", {
   description: "Destroy the MariaDB integration test stack",
-  exec: "cd integ && npx cdk destroy DrizzleMigrateMariaDBIntegStack",
+  exec: "cd integ && npx cdk destroy",
 })
 
 project.addTask("integ:destroy:aurora-serverless", {
   description: "Destroy the Aurora Serverless integration test stack",
-  exec: "cd integ && npx cdk destroy DrizzleMigrateAuroraServerlessIntegStack",
+  exec: "cd integ && npx cdk destroy",
 })
 
 project.addTask("integ:destroy:all", {

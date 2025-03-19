@@ -74,9 +74,9 @@ export class DrizzleMigrate extends Construct {
     const migrationsDir = path.join(process.cwd(), props.migrationsPath)
     const handlerDir = path.join(__dirname, "handler")
 
-    const ts_filename = `${__dirname}/index.ts`
-    const js_filename = `${__dirname}/index.js`
-    const entry = existsSync(js_filename) ? js_filename : ts_filename
+    const ts_filename = path.join(handlerDir, "index.ts")
+    const js_filename = path.join(handlerDir, "index.js")
+    const entry = existsSync(ts_filename) ? ts_filename : js_filename
 
     const onEventHandler = new NodejsFunction(this, "MigrateHandler", {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -149,7 +149,7 @@ export class DrizzleMigrate extends Construct {
     })
 
     const resourceCfn = this.resource.node.defaultChild as CfnResource
-    resourceCfn.addPropertyOverride("ServiceTimeout", 180)
+    resourceCfn.addPropertyOverride("ServiceTimeout", 900)
 
     // Add dependency to ensure database is created before migrations run
     if (props.cluster) {

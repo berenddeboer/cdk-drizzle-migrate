@@ -197,7 +197,7 @@
       "description": "Deploy the Aurora Serverless integration test stack",
       "steps": [
         {
-          "exec": "cd integ/serverless && npx cdk deploy DrizzleMigrateAuroraServerlessIntegStack --require-approval never"
+          "exec": "cd integ/serverless && npx cdk deploy --require-approval never"
         }
       ]
     },
@@ -206,7 +206,7 @@
       "description": "Deploy the MariaDB integration test stack",
       "steps": [
         {
-          "exec": "cd integ/mariadb && npx cdk deploy DrizzleMigrateMariaDBIntegStack --require-approval never"
+          "exec": "cd integ/mariadb && npx cdk deploy --require-approval never"
         }
       ]
     },
@@ -215,7 +215,7 @@
       "description": "Deploy the PostgreSQL integration test stack",
       "steps": [
         {
-          "exec": "cd integ/postgres && npx cdk deploy DrizzleMigrateIntegStack --require-approval never"
+          "exec": "cd integ/postgres && npx cdk deploy --require-approval never"
         }
       ]
     },
@@ -233,7 +233,7 @@
       "description": "Destroy the Aurora Serverless integration test stack",
       "steps": [
         {
-          "exec": "cd integ && npx cdk destroy DrizzleMigrateAuroraServerlessIntegStack"
+          "exec": "cd integ && npx cdk destroy"
         }
       ]
     },
@@ -242,7 +242,7 @@
       "description": "Destroy the MariaDB integration test stack",
       "steps": [
         {
-          "exec": "cd integ && npx cdk destroy DrizzleMigrateMariaDBIntegStack"
+          "exec": "cd integ && npx cdk destroy"
         }
       ]
     },
@@ -251,7 +251,7 @@
       "description": "Destroy the PostgreSQL integration test stack",
       "steps": [
         {
-          "exec": "cd integ && npx cdk destroy DrizzleMigrateIntegStack"
+          "exec": "cd integ && npx cdk destroy"
         }
       ]
     },

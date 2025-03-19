@@ -21,6 +21,14 @@ This package assumes you deploy from a unix shell with access to `cp`,
 
      npm i cdk-drizzle-migrate
 
+You probably will be very unhappy if you don't have esbuild, so as
+usual in a cdk typescript project make sure that is installed too:
+
+    npm i esbuild
+
+And obviously drizzle-kit and drizzle-orm should be available if you
+actually want to create migrations.
+
 # Usage
 
 Have an RDS database and a secret that stores your db
