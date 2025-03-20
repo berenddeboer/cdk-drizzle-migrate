@@ -264,6 +264,48 @@
         }
       ]
     },
+    "integ:synth:all": {
+      "name": "integ:synth:all",
+      "description": "Synthesize all integration test stacks",
+      "steps": [
+        {
+          "spawn": "integ:synth:postgres"
+        },
+        {
+          "spawn": "integ:synth:mariadb"
+        },
+        {
+          "spawn": "integ:synth:serverless"
+        }
+      ]
+    },
+    "integ:synth:mariadb": {
+      "name": "integ:synth:mariadb",
+      "description": "Synthesize the MariaDB integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/mariadb && npx cdk synth"
+        }
+      ]
+    },
+    "integ:synth:postgres": {
+      "name": "integ:synth:postgres",
+      "description": "Synthesize the PostgreSQL integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/postgres && npx cdk synth"
+        }
+      ]
+    },
+    "integ:synth:serverless": {
+      "name": "integ:synth:serverless",
+      "description": "Synthesize the Aurora Serverless integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/serverless && npx cdk synth"
+        }
+      ]
+    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
@@ -346,6 +388,9 @@
       "name": "test",
       "description": "Run tests",
       "steps": [
+        {
+          "spawn": "integ:synth:all"
+        },
         {
           "exec": "jest --passWithNoTests --updateSnapshot",
           "receiveArgs": true

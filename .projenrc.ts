@@ -131,4 +131,34 @@ project.addPackageIgnore("lambda")
 //project.addPackageIgnore("!/lib/handler/handler.js")
 //project.addPackageIgnore("!/lib/handler/handler.js.map")
 
+// Add these new tasks for synthesizing each stack
+project.addTask("integ:synth:postgres", {
+  description: "Synthesize the PostgreSQL integration test stack",
+  exec: "cd integ/postgres && npx cdk synth",
+})
+
+project.addTask("integ:synth:mariadb", {
+  description: "Synthesize the MariaDB integration test stack",
+  exec: "cd integ/mariadb && npx cdk synth",
+})
+
+project.addTask("integ:synth:serverless", {
+  description: "Synthesize the Aurora Serverless integration test stack",
+  exec: "cd integ/serverless && npx cdk synth",
+})
+
+// Create a combined task that runs all three synth commands
+const synthAllTask = project.addTask("integ:synth:all", {
+  description: "Synthesize all integration test stacks",
+})
+synthAllTask.spawn(project.tasks.tryFind("integ:synth:postgres")!)
+synthAllTask.spawn(project.tasks.tryFind("integ:synth:mariadb")!)
+synthAllTask.spawn(project.tasks.tryFind("integ:synth:serverless")!)
+
+// Add the synth:all task as a pre-test step
+const testTask = project.tasks.tryFind("test")
+if (testTask) {
+  testTask.prependSpawn(project.tasks.tryFind("integ:synth:all")!)
+}
+
 project.synth()
