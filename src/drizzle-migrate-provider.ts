@@ -1,6 +1,6 @@
+import { strict as assert } from "assert"
 import { existsSync } from "fs"
 import * as path from "path"
-import * as assert from "assert"
 import { CfnResource, CustomResource, Duration } from "aws-cdk-lib"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
 import * as lambda from "aws-cdk-lib/aws-lambda"
@@ -73,7 +73,10 @@ export class DrizzleMigrate extends Construct {
     super(scope, id)
 
     const migrationsDir = path.join(process.cwd(), props.migrationsPath)
-    assert(existsSync(migrationsDir), `Migrations directory ${migrationsDir} does not exist`)
+    assert(
+      existsSync(migrationsDir),
+      `Migrations directory ${migrationsDir} does not exist`
+    )
     const handlerDir = path.join(__dirname, "handler")
 
     const ts_filename = path.join(handlerDir, "index.ts")
