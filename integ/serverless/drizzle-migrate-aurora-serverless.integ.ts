@@ -1,7 +1,7 @@
 import { App, Stack, StackProps, CfnOutput, RemovalPolicy } from "aws-cdk-lib"
 import * as rds from "aws-cdk-lib/aws-rds"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
-import { DrizzleMigrate } from "../src"
+import { DrizzleMigrate } from "../../src"
 
 class DrizzleMigrateAuroraServerlessIntegStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
@@ -25,12 +25,6 @@ class DrizzleMigrateAuroraServerlessIntegStack extends Stack {
       service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
     })
 
-    // Create a security group for the database
-    const dbSecurityGroup = new ec2.SecurityGroup(this, "DbSecurityGroup", {
-      vpc,
-      description: "Security group for the Aurora Serverless v2 test database",
-    })
-
     // Create an Aurora Serverless v2 PostgreSQL cluster
     const cluster = new rds.DatabaseCluster(this, "AuroraCluster", {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
@@ -45,14 +39,13 @@ class DrizzleMigrateAuroraServerlessIntegStack extends Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
       },
-      securityGroups: [dbSecurityGroup],
       defaultDatabaseName: "testdb",
       credentials: rds.Credentials.fromGeneratedSecret("postgres"),
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
     // Create the DrizzleMigrate construct
-    const migrator = new DrizzleMigrate(this, "DrizzleMigration", {
+    new DrizzleMigrate(this, "DrizzleMigration", {
       dbSecret: cluster.secret!,
       migrationsPath: "migrations",
       vpc: vpc,
@@ -60,16 +53,7 @@ class DrizzleMigrateAuroraServerlessIntegStack extends Stack {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
       },
       cluster: cluster, // Pass the cluster to allow automatic security group configuration
-      handlerProps: {
-        environment: {
-          TEST_INTEGRATION: "true",
-          TEST: "1",
-        },
-      },
     })
-
-    // Add dependency to ensure database is created before migrations run
-    migrator.resource.node.addDependency(cluster)
 
     // Output the database endpoint for reference
     new CfnOutput(this, "DatabaseEndpoint", {

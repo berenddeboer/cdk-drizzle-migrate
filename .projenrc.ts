@@ -72,34 +72,24 @@ project.addTask("integ:deploy:mariadb", {
   exec: "cd integ/mariadb && npx cdk deploy --require-approval never",
 })
 
-project.addTask("integ:deploy:aurora-serverless", {
+project.addTask("integ:deploy:serverless", {
   description: "Deploy the Aurora Serverless integration test stack",
   exec: "cd integ/serverless && npx cdk deploy --require-approval never",
 })
 
-project.addTask("integ:deploy:all", {
-  description: "Deploy all integration test stacks",
-  exec: "cd integ && npx cdk deploy --all --require-approval never",
-})
-
 project.addTask("integ:destroy:postgres", {
   description: "Destroy the PostgreSQL integration test stack",
-  exec: "cd integ && npx cdk destroy",
+  exec: "cd integ/postgres && npx cdk destroy",
 })
 
 project.addTask("integ:destroy:mariadb", {
   description: "Destroy the MariaDB integration test stack",
-  exec: "cd integ && npx cdk destroy",
+  exec: "cd integ/maridb && npx cdk destroy",
 })
 
-project.addTask("integ:destroy:aurora-serverless", {
+project.addTask("integ:destroy:serverless", {
   description: "Destroy the Aurora Serverless integration test stack",
-  exec: "cd integ && npx cdk destroy",
-})
-
-project.addTask("integ:destroy:all", {
-  description: "Destroy all integration test stacks",
-  exec: "cd integ && npx cdk destroy --all",
+  exec: "cd integ/serverless && npx cdk destroy",
 })
 
 // Add task to generate migrations
@@ -111,6 +101,11 @@ project.addTask("integ:generate-migrations:postgres", {
 project.addTask("integ:generate-migrations:mariadb", {
   description: "Generate Drizzle migrations for the integration test",
   exec: "cd integ/mariadb && npx drizzle-kit generate",
+})
+
+project.addTask("integ:generate-migrations:serverless", {
+  description: "Generate Drizzle migrations for the integration test",
+  exec: "cd integ/serverless && npx drizzle-kit generate",
 })
 
 project.addTask("build:handler", {
