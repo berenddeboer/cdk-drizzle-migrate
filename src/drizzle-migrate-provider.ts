@@ -104,7 +104,7 @@ export class DrizzleMigrate extends Construct {
               `cp ${handlerDir}/handler.js ${outputDir}`,
               `cp -r ${migrationsDir} ${path.join(outputDir, "migrations")}`,
               `mkdir -p ${path.join(outputDir, "certs")}`,
-              `curl -fL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o ${path.join(outputDir, "certs", "global-bundle.pem")}`,
+              `curl --silent -fL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o ${path.join(outputDir, "certs", "global-bundle.pem")}`,
             ]
           },
           afterBundling(): string[] {
