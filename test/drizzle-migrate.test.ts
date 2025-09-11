@@ -1,5 +1,6 @@
 import { Stack } from "aws-cdk-lib"
-import { Template } from "aws-cdk-lib/assertions"
+import { Template, Match } from "aws-cdk-lib/assertions"
+import * as dsql from "aws-cdk-lib/aws-dsql"
 import * as ec2 from "aws-cdk-lib/aws-ec2"
 import * as rds from "aws-cdk-lib/aws-rds"
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"
@@ -26,15 +27,38 @@ describe("DrizzleMigrate", () => {
 
     const template = Template.fromStack(stack)
 
-    // Verify Lambda function is created
+    // Verify main migration handler Lambda function is created
     template.hasResourceProperties("AWS::Lambda::Function", {
       Handler: "index.handler",
       Runtime: "nodejs20.x",
       Timeout: 300,
     })
 
-    // Verify Custom Resource Provider is created
-    template.resourceCountIs("Custom::LogRetention", 2) // One for the handler, one for the provider
+    // Verify provider framework Lambda function is created
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Handler: "framework.onEvent",
+      Timeout: 900,
+      LoggingConfig: {
+        ApplicationLogLevel: "FATAL",
+        LogFormat: "JSON",
+        LogGroup: {
+          Ref: Match.anyValue(),
+        },
+      },
+    })
+
+    // Verify LoggingConfig on migration handler specifically
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Handler: "index.handler",
+      Timeout: 300,
+      LoggingConfig: {
+        ApplicationLogLevel: "INFO",
+        LogFormat: "JSON",
+        LogGroup: {
+          Ref: Match.anyValue(),
+        },
+      },
+    })
 
     template.hasResourceProperties("AWS::IAM::Policy", {
       PolicyDocument: {
@@ -134,5 +158,86 @@ describe("DrizzleMigrate", () => {
         "Fn::GetAtt": ["TestDatabase7A4A91C2", "Endpoint.Port"],
       },
     })
+  })
+
+  test("supports DSQL cluster with IAM authentication", () => {
+    const stack = new Stack()
+
+    // Create a DSQL cluster for testing
+    const dsqlCluster = new dsql.CfnCluster(stack, "TestDsqlCluster", {})
+
+    new DrizzleMigrate(stack, "TestMigrate", {
+      migrationsPath: "test/fixtures/migrations",
+      cluster: dsqlCluster,
+    })
+
+    const template = Template.fromStack(stack)
+
+    // Verify Lambda function is created
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Handler: "index.handler",
+      Runtime: "nodejs20.x",
+      Timeout: 300,
+    })
+
+    // Verify IAM policy for DSQL access is created
+    template.hasResourceProperties("AWS::IAM::Policy", {
+      PolicyDocument: {
+        Statement: [
+          {
+            Action: "dsql:DbConnectAdmin",
+            Effect: "Allow",
+            Resource: { "Fn::GetAtt": ["TestDsqlCluster", "ResourceArn"] },
+          },
+        ],
+      },
+    })
+
+    // Verify Custom Resource has correct properties for DSQL
+    template.hasResourceProperties("AWS::CloudFormation::CustomResource", {
+      ServiceTimeout: 900,
+    })
+
+    // Verify no VPC or security group resources are created for DSQL
+    template.resourceCountIs("AWS::EC2::VPC", 0)
+    template.resourceCountIs("AWS::EC2::SecurityGroup", 0)
+  })
+
+  test("validates mutually exclusive configuration", () => {
+    const stack = new Stack()
+
+    const secret = new secretsmanager.Secret(stack, "TestSecret")
+    const dsqlCluster = new dsql.CfnCluster(stack, "TestDsqlCluster", {})
+
+    // Should throw when both dbSecret and DSQL cluster are provided
+    expect(() => {
+      new DrizzleMigrate(stack, "TestMigrate", {
+        dbSecret: secret,
+        migrationsPath: "test/fixtures/migrations",
+        cluster: dsqlCluster,
+      })
+    }).toThrow("dbSecret should not be provided when using DSQL cluster")
+  })
+
+  test("validates required configuration for traditional RDS", () => {
+    const stack = new Stack()
+
+    // Should throw when neither dbSecret nor cluster is provided
+    expect(() => {
+      new DrizzleMigrate(stack, "TestMigrate", {
+        migrationsPath: "test/fixtures/migrations",
+      })
+    }).toThrow(
+      "Either dbSecret (for traditional RDS) or cluster with DSQL must be provided"
+    )
+
+    // Should throw when dbSecret is provided but vpc is missing
+    const secret = new secretsmanager.Secret(stack, "TestSecret")
+    expect(() => {
+      new DrizzleMigrate(stack, "TestMigrate2", {
+        dbSecret: secret,
+        migrationsPath: "test/fixtures/migrations",
+      })
+    }).toThrow("VPC is required for traditional RDS databases")
   })
 })

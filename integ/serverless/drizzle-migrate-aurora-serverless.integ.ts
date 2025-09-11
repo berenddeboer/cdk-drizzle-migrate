@@ -28,9 +28,9 @@ class DrizzleMigrateAuroraServerlessIntegStack extends Stack {
     // Create an Aurora Serverless v2 PostgreSQL cluster
     const cluster = new rds.DatabaseCluster(this, "AuroraCluster", {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_15_3,
+        version: rds.AuroraPostgresEngineVersion.VER_15_12,
       }),
-      serverlessV2MinCapacity: 0.5,
+      serverlessV2MinCapacity: 0,
       serverlessV2MaxCapacity: 1,
       writer: rds.ClusterInstance.serverlessV2("Writer", {
         autoMinorVersionUpgrade: true,

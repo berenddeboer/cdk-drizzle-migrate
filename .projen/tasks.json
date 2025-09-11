@@ -183,6 +183,15 @@
         }
       ]
     },
+    "integ:deploy:dsql": {
+      "name": "integ:deploy:dsql",
+      "description": "Deploy the DSQL integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/dsql && npx cdk deploy --require-approval never"
+        }
+      ]
+    },
     "integ:deploy:mariadb": {
       "name": "integ:deploy:mariadb",
       "description": "Deploy the MariaDB integration test stack",
@@ -210,6 +219,15 @@
         }
       ]
     },
+    "integ:destroy:dsql": {
+      "name": "integ:destroy:dsql",
+      "description": "Destroy the DSQL integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/dsql && npx cdk destroy"
+        }
+      ]
+    },
     "integ:destroy:mariadb": {
       "name": "integ:destroy:mariadb",
       "description": "Destroy the MariaDB integration test stack",
@@ -234,6 +252,15 @@
       "steps": [
         {
           "exec": "cd integ/serverless && npx cdk destroy"
+        }
+      ]
+    },
+    "integ:generate-migrations:dsql": {
+      "name": "integ:generate-migrations:dsql",
+      "description": "Generate Drizzle migrations for the DSQL integration test",
+      "steps": [
+        {
+          "exec": "cd integ/dsql && npx drizzle-kit generate"
         }
       ]
     },
@@ -276,6 +303,18 @@
         },
         {
           "spawn": "integ:synth:serverless"
+        },
+        {
+          "spawn": "integ:synth:dsql"
+        }
+      ]
+    },
+    "integ:synth:dsql": {
+      "name": "integ:synth:dsql",
+      "description": "Synthesize the DSQL integration test stack",
+      "steps": [
+        {
+          "exec": "cd integ/dsql && npx cdk synth"
         }
       ]
     },
@@ -435,13 +474,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@types/jest,@types/node,aws-cdk,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript,@types/aws-lambda"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@aws-sdk/dsql-signer,@types/jest,@types/node,aws-cdk,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript,@types/aws-lambda"
         },
         {
           "exec": "npm install"
         },
         {
-          "exec": "npm update @aws-sdk/client-secrets-manager @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version drizzle-kit drizzle-orm esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii mysql2 postgres prettier projen ts-jest ts-node typescript @types/aws-lambda aws-cdk-lib constructs"
+          "exec": "npm update @aws-sdk/client-secrets-manager @aws-sdk/dsql-signer @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk commit-and-tag-version drizzle-kit drizzle-orm esbuild eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jsii-diff jsii-docgen jsii-pacmak jsii-rosetta jsii mysql2 postgres prettier projen ts-jest ts-node typescript @types/aws-lambda aws-cdk-lib constructs"
         },
         {
           "exec": "npx projen"

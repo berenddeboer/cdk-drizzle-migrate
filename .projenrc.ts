@@ -5,10 +5,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: "Berend de Boer",
   authorAddress: "berend@pobox.com",
   keywords: ["aws", "aws-cdk", "rds", "aurora", "drizzle", "drizzle-orm", "drizzle-kit"],
-  cdkVersion: "2.171.1",
-  constructsVersion: "10.3.0",
+  cdkVersion: "2.207.0",
+  constructsVersion: "10.4.2",
   defaultReleaseBranch: "main",
-  jsiiVersion: "~5.7.0",
+  jsiiVersion: "~5.9.0",
   majorVersion: 1,
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
@@ -45,6 +45,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     "aws-cdk",
     "esbuild@^0.25.1",
     "@aws-sdk/client-secrets-manager",
+    "@aws-sdk/dsql-signer",
     "drizzle-kit",
     "drizzle-orm",
     "postgres",
@@ -78,6 +79,11 @@ project.addTask("integ:deploy:serverless", {
   exec: "cd integ/serverless && npx cdk deploy --require-approval never",
 })
 
+project.addTask("integ:deploy:dsql", {
+  description: "Deploy the DSQL integration test stack",
+  exec: "cd integ/dsql && npx cdk deploy --require-approval never",
+})
+
 project.addTask("integ:destroy:postgres", {
   description: "Destroy the PostgreSQL integration test stack",
   exec: "cd integ/postgres && npx cdk destroy",
@@ -91,6 +97,11 @@ project.addTask("integ:destroy:mariadb", {
 project.addTask("integ:destroy:serverless", {
   description: "Destroy the Aurora Serverless integration test stack",
   exec: "cd integ/serverless && npx cdk destroy",
+})
+
+project.addTask("integ:destroy:dsql", {
+  description: "Destroy the DSQL integration test stack",
+  exec: "cd integ/dsql && npx cdk destroy",
 })
 
 // Add task to generate migrations
@@ -107,6 +118,11 @@ project.addTask("integ:generate-migrations:mariadb", {
 project.addTask("integ:generate-migrations:serverless", {
   description: "Generate Drizzle migrations for the integration test",
   exec: "cd integ/serverless && npx drizzle-kit generate",
+})
+
+project.addTask("integ:generate-migrations:dsql", {
+  description: "Generate Drizzle migrations for the DSQL integration test",
+  exec: "cd integ/dsql && npx drizzle-kit generate",
 })
 
 project.addTask("build:handler", {
@@ -148,13 +164,19 @@ project.addTask("integ:synth:serverless", {
   exec: "cd integ/serverless && npx cdk synth",
 })
 
-// Create a combined task that runs all three synth commands
+project.addTask("integ:synth:dsql", {
+  description: "Synthesize the DSQL integration test stack",
+  exec: "cd integ/dsql && npx cdk synth",
+})
+
+// Create a combined task that runs all four synth commands
 const synthAllTask = project.addTask("integ:synth:all", {
   description: "Synthesize all integration test stacks",
 })
 synthAllTask.spawn(project.tasks.tryFind("integ:synth:postgres")!)
 synthAllTask.spawn(project.tasks.tryFind("integ:synth:mariadb")!)
 synthAllTask.spawn(project.tasks.tryFind("integ:synth:serverless")!)
+synthAllTask.spawn(project.tasks.tryFind("integ:synth:dsql")!)
 
 // Add the synth:all task as a pre-test step
 const testTask = project.tasks.tryFind("test")

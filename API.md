@@ -161,24 +161,12 @@ const drizzleMigrateProps: DrizzleMigrateProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.dbSecret">dbSecret</a></code> | <code>aws-cdk-lib.aws_secretsmanager.ISecret</code> | The database secret containing connection details Must contain standard CDK database secret properties: username, password, host, port, engine, etc. |
 | <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.migrationsPath">migrationsPath</a></code> | <code>string</code> | The path to the migrations directory This directory will be bundled with the Lambda function. |
-| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | The VPC where the Lambda function will be deployed Required to allow the Lambda function to connect to the database. |
-| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_rds.IDatabaseCluster \| aws-cdk-lib.aws_rds.IDatabaseInstance</code> | Optional database cluster or instance If provided and a new security group is created, the security group will be configured to allow access to the database. |
+| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.cluster">cluster</a></code> | <code>aws-cdk-lib.aws_rds.IDatabaseCluster \| aws-cdk-lib.aws_rds.IDatabaseInstance \| aws-cdk-lib.aws_dsql.CfnCluster</code> | Optional database cluster or instance Supports both traditional RDS/Aurora clusters and DSQL clusters - For RDS/Aurora: security groups will be configured to allow access - For DSQL: IAM authentication will be used instead of secrets. |
+| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.dbSecret">dbSecret</a></code> | <code>aws-cdk-lib.aws_secretsmanager.ISecret</code> | The database secret containing connection details Must contain standard CDK database secret properties: username, password, host, port, engine, etc. |
 | <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.handlerProps">handlerProps</a></code> | <code>aws-cdk-lib.aws_lambda_nodejs.NodejsFunctionProps</code> | Optional properties to customize the Lambda function Excludes runtime, entry, and handler which are managed by the construct. |
-| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Optional subnet selection to deploy the Lambda function. |
-
----
-
-##### `dbSecret`<sup>Required</sup> <a name="dbSecret" id="cdk-drizzle-migrate.DrizzleMigrateProps.property.dbSecret"></a>
-
-```typescript
-public readonly dbSecret: ISecret;
-```
-
-- *Type:* aws-cdk-lib.aws_secretsmanager.ISecret
-
-The database secret containing connection details Must contain standard CDK database secret properties: username, password, host, port, engine, etc.
+| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | The VPC where the Lambda function will be deployed Required when your database is only accessible in a VPC. |
+| <code><a href="#cdk-drizzle-migrate.DrizzleMigrateProps.property.vpcSubnets">vpcSubnets</a></code> | <code>aws-cdk-lib.aws_ec2.SubnetSelection</code> | Optional subnet selection to deploy the Lambda function Only used when vpc is specified. |
 
 ---
 
@@ -194,28 +182,31 @@ The path to the migrations directory This directory will be bundled with the Lam
 
 ---
 
-##### `vpc`<sup>Required</sup> <a name="vpc" id="cdk-drizzle-migrate.DrizzleMigrateProps.property.vpc"></a>
-
-```typescript
-public readonly vpc: IVpc;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.IVpc
-
-The VPC where the Lambda function will be deployed Required to allow the Lambda function to connect to the database.
-
----
-
 ##### `cluster`<sup>Optional</sup> <a name="cluster" id="cdk-drizzle-migrate.DrizzleMigrateProps.property.cluster"></a>
 
 ```typescript
-public readonly cluster: IDatabaseCluster | IDatabaseInstance;
+public readonly cluster: IDatabaseCluster | IDatabaseInstance | CfnCluster;
 ```
 
-- *Type:* aws-cdk-lib.aws_rds.IDatabaseCluster | aws-cdk-lib.aws_rds.IDatabaseInstance
+- *Type:* aws-cdk-lib.aws_rds.IDatabaseCluster | aws-cdk-lib.aws_rds.IDatabaseInstance | aws-cdk-lib.aws_dsql.CfnCluster
 - *Default:* No database connection is configured
 
-Optional database cluster or instance If provided and a new security group is created, the security group will be configured to allow access to the database.
+Optional database cluster or instance Supports both traditional RDS/Aurora clusters and DSQL clusters - For RDS/Aurora: security groups will be configured to allow access - For DSQL: IAM authentication will be used instead of secrets.
+
+---
+
+##### `dbSecret`<sup>Optional</sup> <a name="dbSecret" id="cdk-drizzle-migrate.DrizzleMigrateProps.property.dbSecret"></a>
+
+```typescript
+public readonly dbSecret: ISecret;
+```
+
+- *Type:* aws-cdk-lib.aws_secretsmanager.ISecret
+- *Default:* undefined for DSQL clusters using IAM authentication
+
+The database secret containing connection details Must contain standard CDK database secret properties: username, password, host, port, engine, etc.
+
+Not required when relying on IAM authentication (such as DSQL).
 
 ---
 
@@ -232,6 +223,21 @@ Optional properties to customize the Lambda function Excludes runtime, entry, an
 
 ---
 
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="cdk-drizzle-migrate.DrizzleMigrateProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+- *Default:* use VPC of your RDS/Aurora cluster
+
+The VPC where the Lambda function will be deployed Required when your database is only accessible in a VPC.
+
+Not required for DSQL as it uses public endpoints with IAM authentication
+
+---
+
 ##### `vpcSubnets`<sup>Optional</sup> <a name="vpcSubnets" id="cdk-drizzle-migrate.DrizzleMigrateProps.property.vpcSubnets"></a>
 
 ```typescript
@@ -241,7 +247,7 @@ public readonly vpcSubnets: SubnetSelection;
 - *Type:* aws-cdk-lib.aws_ec2.SubnetSelection
 - *Default:* PRIVATE_WITH_EGRESS subnets
 
-Optional subnet selection to deploy the Lambda function.
+Optional subnet selection to deploy the Lambda function Only used when vpc is specified.
 
 ---
 

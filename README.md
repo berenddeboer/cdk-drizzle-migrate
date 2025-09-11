@@ -1,7 +1,7 @@
 # About
 
 This CDK construct library makes it possible to run the drizzle
-migrate at deploy of your stack time against the RDS cluster of your
+migrate at deploy of your stack time against the RDS or DSQL cluster of your
 choice. The supported engines are PostgreSQL, MariaDB and MySQL.
 
 This construct library is intended to be used in enterprise
@@ -30,6 +30,8 @@ And obviously drizzle-kit and drizzle-orm should be available if you
 actually want to create migrations.
 
 # Usage
+
+## RDS and Aurora
 
 Have an RDS database and a secret that stores your db
 credentials. Usually this will be the root secret for your RDS
@@ -64,6 +66,17 @@ Your secret should look like the standard one created by CDK:
 }
 ```
 
+## DSQL
+
+For DSQL there is no secret where credentials are stored. Only IAM
+access is supported.
+
+Drizzle doesn't really support DSQL, so if you create migrations you
+will often need to tweak them manually as so little of postgresql is
+supported.
+
+## Migrations
+
 Specify the path where the migrations are stored, `migrations` in this case.
 
 When this resource is deployed, it will run `drizzle-kit migrate` for
@@ -80,9 +93,9 @@ security group if no security group is present in
 If you do not pass a cluster, make sure to pass in a security group in
 `handlerProps.securityGroups` which can connect to your database.
 
-Also if you do not pass a cluster you, but still create a database,
-you may wish to add a dependency to make sure the database is created,
-before the migration is run:
+Also if you do not pass a cluster, but you still want to create a
+database, you may wish to add a dependency to make sure the database
+is created, before the migration is run:
 
 ```ts
 migrator.resource.node.addDependency(cluster)
@@ -95,14 +108,15 @@ migrator.resource.node.addDependency(cluster)
 
 # Working on this code
 
-1. Install packages: `npm i`
+1. Install packages: `npm ci`
 
 2. Bootstrap CDK if not done: `npx cdk bootstrap
    aws://123456/us-east-1`. Replace 123456 with your AWS account.
 
 ## Handler notes
 
-When making changes to the Lambda handler code in `lambda/index.ts`, you need to transpile it to JavaScript:
+When making changes to the Lambda handler code in `lambda/index.ts`,
+you need to transpile it to JavaScript:
 
 ```bash
 npx projen build:handler

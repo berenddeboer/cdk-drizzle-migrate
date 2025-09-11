@@ -5,6 +5,10 @@
       "type": "build"
     },
     {
+      "name": "@aws-sdk/dsql-signer",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "type": "build"
     },
@@ -89,12 +93,12 @@
     },
     {
       "name": "jsii-rosetta",
-      "version": "~5.7.0",
+      "version": "~5.9.0",
       "type": "build"
     },
     {
       "name": "jsii",
-      "version": "~5.7.0",
+      "version": "~5.9.0",
       "type": "build"
     },
     {
@@ -131,12 +135,12 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.171.1",
+      "version": "^2.207.0",
       "type": "peer"
     },
     {
       "name": "constructs",
-      "version": "^10.3.0",
+      "version": "^10.4.2",
       "type": "peer"
     },
     {
