@@ -9,7 +9,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   constructsVersion: "10.4.2",
   defaultReleaseBranch: "main",
   jsiiVersion: "~5.9.0",
-  majorVersion: 1,
+  majorVersion: 2,
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
   gitignore: [".envrc", ".env", "integ/*/cdk.out/", "src/handler/handler.js"],
