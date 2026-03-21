@@ -14,6 +14,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
   workflowNodeVersion: "24.x",
+  releaseToNpm: true,
+  npmAccess: javascript.NpmAccess.PUBLIC,
+  npmProvenance: true,
+  npmTrustedPublishing: true,
   gitignore: [".envrc", ".env", "integ/*/cdk.out/", "src/handler/handler.js"],
   prettier: true,
   prettierOptions: {
