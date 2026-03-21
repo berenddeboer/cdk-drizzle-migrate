@@ -22,6 +22,12 @@ interface DSQLMigrationConfig {
   migrationsSchema?: string
 }
 
+const DSQL_RETRYABLE_SQLSTATE = "40001"
+const DSQL_RETRYABLE_ERROR_CODE = "OC001"
+const DSQL_MAX_RETRY_ATTEMPTS = 8
+const DSQL_INITIAL_RETRY_DELAY_MS = 200
+const DSQL_MAX_RETRY_DELAY_MS = 5_000
+
 /**
  * Read migration files from the specified folder
  * This replicates Drizzle's readMigrationFiles function
@@ -63,6 +69,76 @@ function readMigrationFiles(config: DSQLMigrationConfig): MigrationMeta[] {
   return migrations.sort((a, b) => a.folderMillis - b.folderMillis)
 }
 
+function isRetryableDsqlError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false
+  }
+
+  const maybeError = error as {
+    code?: unknown
+    message?: unknown
+    detail?: unknown
+    cause?: unknown
+  }
+
+  if (maybeError.code === DSQL_RETRYABLE_SQLSTATE) {
+    return true
+  }
+
+  const text = [maybeError.message, maybeError.detail]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+
+  if (text.includes(DSQL_RETRYABLE_ERROR_CODE)) {
+    return true
+  }
+
+  return isRetryableDsqlError(maybeError.cause)
+}
+
+function isMissingMigrationsTableError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false
+  }
+
+  const maybeError = error as { code?: unknown }
+  return maybeError.code === "42P01" || maybeError.code === "3F000"
+}
+
+function getRetryDelayMs(attempt: number): number {
+  return Math.min(
+    DSQL_INITIAL_RETRY_DELAY_MS * 2 ** (attempt - 1),
+    DSQL_MAX_RETRY_DELAY_MS
+  )
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function withDsqlRetry<T>(
+  action: string,
+  operation: () => Promise<T>
+): Promise<T> {
+  for (let attempt = 1; attempt <= DSQL_MAX_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      return await operation()
+    } catch (error) {
+      if (!isRetryableDsqlError(error) || attempt === DSQL_MAX_RETRY_ATTEMPTS) {
+        throw error
+      }
+
+      const delayMs = getRetryDelayMs(attempt)
+      console.warn(
+        `${action} hit a retryable Aurora DSQL schema conflict on attempt ${attempt}/${DSQL_MAX_RETRY_ATTEMPTS}. Retrying in ${delayMs}ms.`
+      )
+      await sleep(delayMs)
+    }
+  }
+
+  throw new Error(`${action} exceeded the maximum Aurora DSQL retry attempts`)
+}
+
 /**
  * Create the DSQL-compatible migrations table
  */
@@ -74,14 +150,18 @@ async function ensureMigrationsTable(
   const table = config.migrationsTable || "__drizzle_migrations"
 
   // Create schema if it doesn't exist
-  await sql`CREATE SCHEMA IF NOT EXISTS ${sql(schema)}`
+  await withDsqlRetry("Creating DSQL migrations schema", () =>
+    sql`CREATE SCHEMA IF NOT EXISTS ${sql(schema)}`
+  )
 
   // Create migrations table with UUID instead of SERIAL
-  await sql`CREATE TABLE IF NOT EXISTS ${sql(schema)}.${sql(table)} (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    hash text NOT NULL UNIQUE,
-    created_at bigint NOT NULL
-  )`
+  await withDsqlRetry("Creating DSQL migrations table", () =>
+    sql`CREATE TABLE IF NOT EXISTS ${sql(schema)}.${sql(table)} (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      hash text NOT NULL UNIQUE,
+      created_at bigint NOT NULL
+    )`
+  )
 }
 
 /**
@@ -95,12 +175,17 @@ async function getAppliedMigrations(
   const table = config.migrationsTable || "__drizzle_migrations"
 
   try {
-    const result = await sql`SELECT hash FROM ${sql(schema)}.${sql(table)}`
+    const result = await withDsqlRetry("Reading applied DSQL migrations", () =>
+      sql`SELECT hash FROM ${sql(schema)}.${sql(table)}`
+    )
     return new Set(result.map(row => row.hash as string))
   } catch (error) {
-    // If table doesn't exist yet, return empty set
-    console.warn("Could not query migrations table:", error)
-    return new Set()
+    if (isMissingMigrationsTableError(error)) {
+      console.warn("Could not query migrations table because it does not exist yet:", error)
+      return new Set()
+    }
+
+    throw error
   }
 }
 
@@ -119,15 +204,20 @@ async function executeMigration(
 
   try {
     // Execute all SQL statements in the migration
-    for (const statement of migration.sql) {
+    for (const [index, statement] of migration.sql.entries()) {
       if (statement.trim()) {
         console.log(`Executing: ${statement.substring(0, 100)}...`)
-        await sql.unsafe(statement)
+        await withDsqlRetry(
+          `Executing DSQL migration ${migration.hash} statement ${index + 1}`,
+          () => sql.unsafe(statement, [], { prepare: false })
+        )
       }
     }
 
     // Record successful migration
-    await sql`INSERT INTO ${sql(schema)}.${sql(table)} (hash, created_at) VALUES (${migration.hash}, ${Date.now()})`
+    await withDsqlRetry(`Recording DSQL migration ${migration.hash}`, () =>
+      sql`INSERT INTO ${sql(schema)}.${sql(table)} (hash, created_at) VALUES (${migration.hash}, ${Date.now()})`
+    )
 
     console.log(`Migration ${migration.hash} completed successfully`)
   } catch (error) {

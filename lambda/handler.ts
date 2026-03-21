@@ -82,9 +82,21 @@ export async function onEvent(
         database: "postgres", // Fixed by DSQL
         //ssl: sslConfig,
         ssl: true,
+        max: 1,
+        prepare: false,
       })
-      // Use custom DSQL migrator as Drizzle doesn't support DSQL yet.
-      await migrateDSQL(sql, { migrationsFolder: path.resolve(migrationsPath) })
+      try {
+        const reservedSql = await sql.reserve()
+
+        try {
+          // Use custom DSQL migrator as Drizzle doesn't support DSQL yet.
+          await migrateDSQL(reservedSql, { migrationsFolder: path.resolve(migrationsPath) })
+        } finally {
+          reservedSql.release()
+        }
+      } finally {
+        await sql.end({ timeout: 5 })
+      }
 
       const physicalResourceId = `drizzle-migrate-iam-${endpoint.replace(/[^a-zA-Z0-9]/g, '-')}`
 
