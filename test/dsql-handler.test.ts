@@ -18,8 +18,8 @@ jest.mock("../lambda/dsql-migrator", () => ({
   migrateDSQL: jest.fn(),
 }))
 
-import postgres from "postgres"
 import { DsqlSigner } from "@aws-sdk/dsql-signer"
+import postgres from "postgres"
 import { migrateDSQL } from "../lambda/dsql-migrator"
 import { onEvent } from "../lambda/handler"
 

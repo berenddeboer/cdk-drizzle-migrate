@@ -92,7 +92,9 @@ describe("migrateDSQL", () => {
 
         if (callCounts.insert === 1) {
           return Promise.reject(
-            new Error("schema has been updated by another transaction, please retry (OC001)")
+            new Error(
+              "schema has been updated by another transaction, please retry (OC001)"
+            )
           )
         }
 
@@ -109,7 +111,9 @@ describe("migrateDSQL", () => {
         callCounts.alterTable += 1
 
         if (callCounts.alterTable === 1) {
-          throw new Error("schema has been updated by another transaction, please retry (OC001)")
+          throw new Error(
+            "schema has been updated by another transaction, please retry (OC001)"
+          )
         }
       }
 
@@ -128,12 +132,9 @@ describe("migrateDSQL", () => {
       "ALTER TABLE example ADD COLUMN name text;",
       "ALTER TABLE example ADD COLUMN name text;",
     ])
-    expect(sql.unsafe).toHaveBeenNthCalledWith(
-      1,
-      "CREATE TABLE example (id int);",
-      [],
-      { prepare: false }
-    )
+    expect(sql.unsafe).toHaveBeenNthCalledWith(1, "CREATE TABLE example (id int);", [], {
+      prepare: false,
+    })
     expect(sql.unsafe).toHaveBeenNthCalledWith(
       2,
       "ALTER TABLE example ADD COLUMN name text;",
