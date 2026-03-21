@@ -44,6 +44,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
   projenrcTs: true,
   repositoryUrl: "https://github.com/berenddeboer/cdk-drizzle-migrate.git",
+  githubOptions: {
+    pullRequestLintOptions: {
+      semanticTitleOptions: {
+        types: ["feat", "fix", "chore", "refactor", "docs", "test", "ci", "vendor"],
+      },
+    },
+  },
   description: "AWS CDK construct for running Drizzle ORM migrations",
 
   deps: ["@types/aws-lambda"],
