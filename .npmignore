@@ -27,9 +27,6 @@ tsconfig.tsbuildinfo
 .envrc
 *~
 integ/
-.aider.*
-.aiderignore
-CONVENTIONS.md
 lambda
 /.gitattributes
 /.projenrc.ts
