@@ -10,8 +10,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   defaultReleaseBranch: "main",
   jsiiVersion: "~5.9.0",
   majorVersion: 2,
+  minNodeVersion: "24.0.0",
   name: "cdk-drizzle-migrate",
   packageManager: javascript.NodePackageManager.NPM,
+  workflowNodeVersion: "24.x",
   gitignore: [".envrc", ".env", "integ/*/cdk.out/", "src/handler/handler.js"],
   prettier: true,
   prettierOptions: {
@@ -57,6 +59,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
 
 // Needs to be here, else we get eslint 9
 project.package.addDevDeps("eslint@^8")
+project.package.addField("packageManager", "npm@11")
 
 project.addTask("format", {
   description: "Format code with prettier",
@@ -127,7 +130,7 @@ project.addTask("integ:generate-migrations:dsql", {
 
 project.addTask("build:handler", {
   description: "Transpile the Lambda handler to JavaScript",
-  exec: "esbuild lambda/handler.ts --bundle --platform=node --target=node20 --external:aws-sdk --outfile=src/handler/handler.js",
+  exec: "esbuild lambda/handler.ts --bundle --platform=node --target=node24 --external:aws-sdk --outfile=src/handler/handler.js",
 })
 
 project.addTask("copy:handler", {
