@@ -55,4 +55,5 @@ junit.xml
 .jsii
 tsconfig.json
 !/API.md
+!/.github/dependabot.yml
 !/.projenrc.ts

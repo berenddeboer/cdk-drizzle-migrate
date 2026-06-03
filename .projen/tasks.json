@@ -475,7 +475,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@aws-sdk/dsql-signer,@types/jest,aws-cdk,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript,@types/aws-lambda"
+          "exec": "npx npm-check-updates@20 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-secrets-manager,@aws-sdk/dsql-signer,@types/jest,aws-cdk,drizzle-kit,drizzle-orm,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,jsii-diff,jsii-pacmak,mysql2,postgres,prettier,projen,ts-jest,ts-node,typescript,@types/aws-lambda"
         },
         {
           "exec": "npm install"
