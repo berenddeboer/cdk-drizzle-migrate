@@ -1,4 +1,4 @@
-import { awscdk, javascript } from "projen"
+import { awscdk, github, javascript } from "projen"
 import { ArrowParens, TrailingComma } from "projen/lib/javascript"
 
 const project = new awscdk.AwsCdkConstructLibrary({
@@ -193,6 +193,20 @@ synthAllTask.spawn(project.tasks.tryFind("integ:synth:dsql")!)
 const testTask = project.tasks.tryFind("test")
 if (testTask) {
   testTask.prependSpawn(project.tasks.tryFind("integ:synth:all")!)
+}
+
+const dependabot = project.github?.addDependabot()
+if (dependabot) {
+  dependabot.config.updates = [
+    {
+      "package-ecosystem": "github-actions",
+      directory: "/",
+      schedule: {
+        interval: github.DependabotScheduleInterval.WEEKLY,
+      },
+      allow: [{ "dependency-name": "anthropics/claude-code-action" }],
+    },
+  ]
 }
 
 project.synth()
