@@ -44,7 +44,6 @@ export async function onEvent(
   const { secretArn, endpoint, port, migrationsPath } = ResourceProperties
 
   if (RequestType === "Create" || RequestType === "Update") {
-
     const sslConfig = {
       ca: fs.readFileSync(`${process.env.LAMBDA_TASK_ROOT}/certs/global-bundle.pem`),
       rejectUnauthorized: true,
@@ -52,7 +51,9 @@ export async function onEvent(
 
     if (!secretArn) {
       // IAM authentication path (DSQL)
-      console.log(`Migrating database using IAM authentication from ${path.resolve(migrationsPath)}`)
+      console.log(
+        `Migrating database using IAM authentication from ${path.resolve(migrationsPath)}`
+      )
 
       if (!endpoint) {
         throw new Error("endpoint is required when using IAM authentication")
@@ -90,7 +91,9 @@ export async function onEvent(
 
         try {
           // Use custom DSQL migrator as Drizzle doesn't support DSQL yet.
-          await migrateDSQL(reservedSql, { migrationsFolder: path.resolve(migrationsPath) })
+          await migrateDSQL(reservedSql, {
+            migrationsFolder: path.resolve(migrationsPath),
+          })
         } finally {
           reservedSql.release()
         }
@@ -98,7 +101,7 @@ export async function onEvent(
         await sql.end({ timeout: 5 })
       }
 
-      const physicalResourceId = `drizzle-migrate-iam-${endpoint.replace(/[^a-zA-Z0-9]/g, '-')}`
+      const physicalResourceId = `drizzle-migrate-iam-${endpoint.replace(/[^a-zA-Z0-9]/g, "-")}`
 
       console.log("IAM authentication migration completed successfully")
 
@@ -126,7 +129,9 @@ export async function onEvent(
       switch (engine) {
         case "mysql":
         case "mariadb": {
-          console.log(`Migrating MySQL/MariaDB database ${dbSecret.dbname} using migrations from ${path.resolve(migrationsPath)}`)
+          console.log(
+            `Migrating MySQL/MariaDB database ${dbSecret.dbname} using migrations from ${path.resolve(migrationsPath)}`
+          )
           const connection = await mysql.createConnection({
             host: dbSecret.host,
             port: dbSecret.port,
@@ -135,7 +140,7 @@ export async function onEvent(
             database: dbSecret.dbname,
             ssl: sslConfig,
           })
-          const db = drizzleMysql(connection)
+          const db = drizzleMysql({ client: connection })
           await import("drizzle-orm/mysql2/migrator").then(({ migrate }) =>
             migrate(db, { migrationsFolder: path.resolve(migrationsPath) })
           )
@@ -155,7 +160,7 @@ export async function onEvent(
             database: dbSecret.dbname,
             ssl: sslConfig,
           })
-          const db = drizzle(sql)
+          const db = drizzle({ client: sql })
           await import("drizzle-orm/postgres-js/migrator").then(({ migrate }) =>
             migrate(db, { migrationsFolder: path.resolve(migrationsPath) })
           )
@@ -176,6 +181,6 @@ export async function onEvent(
 
   // For Delete events, we don't need to do anything
   return {
-    PhysicalResourceId: event.PhysicalResourceId
+    PhysicalResourceId: event.PhysicalResourceId,
   }
 }

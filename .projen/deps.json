@@ -38,10 +38,12 @@
     },
     {
       "name": "drizzle-kit",
+      "version": "1.0.0-rc.3",
       "type": "build"
     },
     {
       "name": "drizzle-orm",
+      "version": "1.0.0-rc.3",
       "type": "build"
     },
     {

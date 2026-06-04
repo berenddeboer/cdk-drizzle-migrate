@@ -17,6 +17,10 @@ environments, and works in isolated subnets.
 This package assumes you deploy from a unix shell with access to `cp`,
 `mkdir`, and `curl`.
 
+Version 3 of this package is for Drizzle 1 migration folders and
+requires `drizzle-kit` and `drizzle-orm` 1.0 or later. Use version 2
+of this package with Drizzle 0.x migration folders.
+
 # Installation
 
      npm i cdk-drizzle-migrate
@@ -26,8 +30,8 @@ usual in a cdk typescript project make sure that is installed too:
 
     npm i esbuild
 
-And obviously drizzle-kit and drizzle-orm should be available if you
-actually want to create migrations.
+And obviously drizzle-kit and drizzle-orm 1.0 or later should be
+available if you actually want to create migrations.
 
 # Usage
 
