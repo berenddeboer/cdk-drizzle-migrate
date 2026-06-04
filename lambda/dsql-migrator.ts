@@ -11,6 +11,7 @@ interface MigrationMeta {
   folderMillis: number
   hash: string
   bps: boolean
+  name: string
 }
 
 /**
@@ -29,44 +30,59 @@ const DSQL_INITIAL_RETRY_DELAY_MS = 200
 const DSQL_MAX_RETRY_DELAY_MS = 5_000
 
 /**
- * Read migration files from the specified folder
- * This replicates Drizzle's readMigrationFiles function
+ * Convert a Drizzle 1.0 timestamp prefix (YYYYMMDDHHMMSS) to milliseconds.
+ */
+function formatToMillis(dateStr: string): number {
+  const year = parseInt(dateStr.slice(0, 4), 10)
+  const month = parseInt(dateStr.slice(4, 6), 10) - 1
+  const day = parseInt(dateStr.slice(6, 8), 10)
+  const hour = parseInt(dateStr.slice(8, 10), 10)
+  const minute = parseInt(dateStr.slice(10, 12), 10)
+  const second = parseInt(dateStr.slice(12, 14), 10)
+
+  return Date.UTC(year, month, day, hour, minute, second)
+}
+
+/**
+ * Read migration files from the specified Drizzle 1.0 migration folder.
  */
 function readMigrationFiles(config: DSQLMigrationConfig): MigrationMeta[] {
   const migrationsFolder = path.resolve(config.migrationsFolder)
   const journalPath = path.join(migrationsFolder, "meta", "_journal.json")
 
-  if (!fs.existsSync(journalPath)) {
-    throw new Error(`Can't find meta/_journal.json file`)
+  if (fs.existsSync(journalPath)) {
+    throw new Error(
+      'We detected that you have old drizzle-kit migration folders. You must upgrade drizzle-kit and run "drizzle-kit up"'
+    )
   }
 
-  const journalContent = fs.readFileSync(journalPath, "utf8")
-  const journal = JSON.parse(journalContent)
+  const migrations = fs
+    .readdirSync(migrationsFolder)
+    .map((subdir) => ({
+      path: path.join(migrationsFolder, subdir, "migration.sql"),
+      name: subdir,
+    }))
+    .filter((migration) => fs.existsSync(migration.path))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((migration): MigrationMeta => {
+      const migrationPath = migration.path
+      const migrationDate = migration.name.slice(0, 14)
+      const migrationContent = fs.readFileSync(migrationPath, "utf8")
+      const statements = migrationContent
+        .split("--> statement-breakpoint")
+        .map((s) => s.trim())
+        .filter(Boolean)
 
-  const migrations: MigrationMeta[] = []
-
-  for (const entry of journal.entries) {
-    const migrationPath = path.join(migrationsFolder, `${entry.tag}.sql`)
-
-    if (!fs.existsSync(migrationPath)) {
-      throw new Error(`Can't find migration file ${migrationPath}`)
-    }
-
-    const migrationContent = fs.readFileSync(migrationPath, "utf8")
-    const statements = migrationContent.split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean)
-
-    // Generate hash of the migration content
-    const hash = crypto.createHash("sha256").update(migrationContent).digest("hex")
-
-    migrations.push({
-      sql: statements,
-      folderMillis: entry.when,
-      hash,
-      bps: entry.breakpoints || false
+      return {
+        sql: statements,
+        folderMillis: formatToMillis(migrationDate),
+        hash: crypto.createHash("sha256").update(migrationContent).digest("hex"),
+        bps: true,
+        name: migration.name,
+      }
     })
-  }
 
-  return migrations.sort((a, b) => a.folderMillis - b.folderMillis)
+  return migrations
 }
 
 function isRetryableDsqlError(error: unknown): boolean {
@@ -113,13 +129,10 @@ function getRetryDelayMs(attempt: number): number {
 }
 
 async function sleep(ms: number): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, ms))
+  await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function withDsqlRetry<T>(
-  action: string,
-  operation: () => Promise<T>
-): Promise<T> {
+async function withDsqlRetry<T>(action: string, operation: () => Promise<T>): Promise<T> {
   for (let attempt = 1; attempt <= DSQL_MAX_RETRY_ATTEMPTS; attempt += 1) {
     try {
       return await operation()
@@ -150,13 +163,16 @@ async function ensureMigrationsTable(
   const table = config.migrationsTable || "__drizzle_migrations"
 
   // Create schema if it doesn't exist
-  await withDsqlRetry("Creating DSQL migrations schema", () =>
-    sql`CREATE SCHEMA IF NOT EXISTS ${sql(schema)}`
+  await withDsqlRetry(
+    "Creating DSQL migrations schema",
+    () => sql`CREATE SCHEMA IF NOT EXISTS ${sql(schema)}`
   )
 
   // Create migrations table with UUID instead of SERIAL
-  await withDsqlRetry("Creating DSQL migrations table", () =>
-    sql`CREATE TABLE IF NOT EXISTS ${sql(schema)}.${sql(table)} (
+  await withDsqlRetry(
+    "Creating DSQL migrations table",
+    () =>
+      sql`CREATE TABLE IF NOT EXISTS ${sql(schema)}.${sql(table)} (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       hash text NOT NULL UNIQUE,
       created_at bigint NOT NULL
@@ -175,13 +191,17 @@ async function getAppliedMigrations(
   const table = config.migrationsTable || "__drizzle_migrations"
 
   try {
-    const result = await withDsqlRetry("Reading applied DSQL migrations", () =>
-      sql`SELECT hash FROM ${sql(schema)}.${sql(table)}`
+    const result = await withDsqlRetry(
+      "Reading applied DSQL migrations",
+      () => sql`SELECT hash FROM ${sql(schema)}.${sql(table)}`
     )
-    return new Set(result.map(row => row.hash as string))
+    return new Set(result.map((row) => row.hash as string))
   } catch (error) {
     if (isMissingMigrationsTableError(error)) {
-      console.warn("Could not query migrations table because it does not exist yet:", error)
+      console.warn(
+        "Could not query migrations table because it does not exist yet:",
+        error
+      )
       return new Set()
     }
 
@@ -215,8 +235,10 @@ async function executeMigration(
     }
 
     // Record successful migration
-    await withDsqlRetry(`Recording DSQL migration ${migration.hash}`, () =>
-      sql`INSERT INTO ${sql(schema)}.${sql(table)} (hash, created_at) VALUES (${migration.hash}, ${Date.now()})`
+    await withDsqlRetry(
+      `Recording DSQL migration ${migration.hash}`,
+      () =>
+        sql`INSERT INTO ${sql(schema)}.${sql(table)} (hash, created_at) VALUES (${migration.hash}, ${Date.now()})`
     )
 
     console.log(`Migration ${migration.hash} completed successfully`)
@@ -248,7 +270,7 @@ export async function migrateDSQL(
   console.log(`Found ${appliedMigrations.size} already applied migrations`)
 
   // Filter out already applied migrations
-  const pendingMigrations = migrations.filter(m => !appliedMigrations.has(m.hash))
+  const pendingMigrations = migrations.filter((m) => !appliedMigrations.has(m.hash))
   console.log(`${pendingMigrations.length} migrations pending`)
 
   if (pendingMigrations.length === 0) {

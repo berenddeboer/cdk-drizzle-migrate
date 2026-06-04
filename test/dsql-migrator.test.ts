@@ -14,23 +14,12 @@ describe("migrateDSQL", () => {
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "dsql-migrator-"))
     migrationsDir = path.join(tempDir, "migrations")
-    fs.mkdirSync(path.join(migrationsDir, "meta"), { recursive: true })
+    fs.mkdirSync(path.join(migrationsDir, "20260601005558_initial"), {
+      recursive: true,
+    })
 
     fs.writeFileSync(
-      path.join(migrationsDir, "meta", "_journal.json"),
-      JSON.stringify({
-        entries: [
-          {
-            tag: "0000_initial",
-            when: 1,
-            breakpoints: true,
-          },
-        ],
-      })
-    )
-
-    fs.writeFileSync(
-      path.join(migrationsDir, "0000_initial.sql"),
+      path.join(migrationsDir, "20260601005558_initial", "migration.sql"),
       [
         "CREATE TABLE example (id int);",
         "--> statement-breakpoint",
