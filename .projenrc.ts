@@ -18,6 +18,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   npmAccess: javascript.NpmAccess.PUBLIC,
   npmProvenance: true,
   npmTrustedPublishing: true,
+  depsUpgrade: false,
   gitignore: [".envrc", ".env", "integ/*/cdk.out/", "src/handler/handler.js"],
   prettier: true,
   prettierOptions: {
